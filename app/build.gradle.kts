@@ -39,6 +39,12 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("**/libandroidx.graphics.path.so")
+            keepDebugSymbols.add("**/libdatastore_shared_counter.so")
+        }
+    }
 }
 
 kotlin {
