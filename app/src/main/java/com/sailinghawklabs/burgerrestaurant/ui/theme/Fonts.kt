@@ -1,18 +1,15 @@
 package com.sailinghawklabs.burgerrestaurant.ui.theme
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import com.sailinghawklabs.burgerrestaurant.R
 
-@Composable
-fun oswaldVariableFont() = FontFamily(
+val oswaldVariableFont = FontFamily(
     Font(R.font.oswald_variable_font_wght)
 )
 
-@Composable
-fun sentientVariableFont() = FontFamily(
+val sentientVariableFont = FontFamily(
     Font(R.font.sentient_variable)
 )
 
