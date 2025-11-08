@@ -44,7 +44,10 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 import com.sailinghawklabs.burgerrestaurant.ui.theme.sentientVariableFont
 
 @Composable
-fun SplashScreen(modifier: Modifier = Modifier) {
+fun SplashScreen(
+    modifier: Modifier = Modifier,
+    onDoneClick: () -> Unit = {}
+) {
 
 
     val scale = remember { Animatable(0f) }
@@ -91,7 +94,7 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
-        SplashButton(onClick = { /*TODO*/ })
+        SplashButton(onClick = onDoneClick)
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
