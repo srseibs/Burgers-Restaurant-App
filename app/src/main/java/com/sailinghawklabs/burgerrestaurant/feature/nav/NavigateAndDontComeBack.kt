@@ -1,4 +1,4 @@
-package com.sailinghawklabs.burgerrestaurant.feature.ui.nav
+package com.sailinghawklabs.burgerrestaurant.feature.nav
 
 import androidx.navigation.NavController
 

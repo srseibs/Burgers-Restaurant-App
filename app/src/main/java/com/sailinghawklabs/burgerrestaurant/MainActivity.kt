@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.sailinghawklabs.burgerrestaurant.feature.ui.nav.Navigator
+import com.sailinghawklabs.burgerrestaurant.feature.nav.Navigator
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 
 class MainActivity : ComponentActivity() {

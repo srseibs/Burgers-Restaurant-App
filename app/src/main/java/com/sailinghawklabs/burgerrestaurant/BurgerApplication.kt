@@ -1,7 +1,7 @@
 package com.sailinghawklabs.burgerrestaurant
 
 import android.app.Application
-import com.sailinghawklabs.burgerrestaurant.di.appModule
+import com.sailinghawklabs.burgerrestaurant.core.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
