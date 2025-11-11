@@ -40,7 +40,6 @@ class GoogleUiClient(
                     error("Unsupported credential type: ${cred.type}")
                 }
             }
-
             else -> {
                 error("Unsupported credential class: ${result.credential::class.java.name}")
             }

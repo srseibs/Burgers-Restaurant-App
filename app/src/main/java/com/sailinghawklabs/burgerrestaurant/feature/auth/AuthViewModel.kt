@@ -61,6 +61,7 @@ class AuthViewModel(
     }
 
     private fun loginWithGoogle(activity: Activity) {
+        println("loginWithGoogle activity: ${activity.title}")
         _state.value = AuthState.Loading
         viewModelScope.launch {
             try {
@@ -73,6 +74,7 @@ class AuthViewModel(
                     _state.value = AuthState.Error("vm: Google sign-in failed.")
                 }
             } catch (e: Exception) {
+                println("loginWithGoogle exception: ${e.message}")
                 _state.value = AuthState.Error(e.message ?: "vm: Google sign-in exception.")
             }
         }
