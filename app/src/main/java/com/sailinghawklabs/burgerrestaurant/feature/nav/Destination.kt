@@ -14,4 +14,15 @@ sealed interface Destination {
     @Serializable
     data object HomeGraph : Destination
 
+    @Serializable
+    data object ProductOverviewScreen : Destination
+
+    @Serializable
+    data object CartScreen : Destination
+
+    @Serializable
+    data object Notifications : Destination
+
+    @Serializable
+    data object Categories : Destination
 }

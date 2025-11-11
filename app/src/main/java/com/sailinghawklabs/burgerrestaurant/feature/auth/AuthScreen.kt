@@ -103,7 +103,7 @@ fun AuthScreenContent(
                 )
             }
             GoogleButton(
-                isLoading = false,
+                isLoading = isLoading,
                 onClick = {
                     onEvent(AuthScreenEvent.RequestGoogleLogin(activity = activity))
                 }
