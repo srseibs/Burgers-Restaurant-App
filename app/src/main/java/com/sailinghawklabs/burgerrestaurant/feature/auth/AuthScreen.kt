@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.auth
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,16 +13,17 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.GoogleButton
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
@@ -29,31 +31,49 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel = viewModel(),
-    onGotoMainScreen: () -> Unit
+    viewModel: AuthViewModel = koinViewModel(),
+    onGotoHomeScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    AuthScreenContent(
-        state = state,
-        onEvent = viewModel::onEvent
-    )
-
-    ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
+    ObserveAsCommand(viewModel.commandsForScreen) { command ->
         when (command) {
-            AuthScreenCommand.NavigateToMainScreen -> onGotoMainScreen()
+            is AuthScreenCommand.NavigateToMainScreen -> {
+                onGotoHomeScreen()
+            }
         }
     }
+
+    LaunchedEffect(key1 = state) {
+        when (state) {
+            AuthState.Success -> {}
+            is AuthState.Error -> {}
+            AuthState.Idle -> {}
+            AuthState.Loading -> {}
+        }
+    }
+
+    AuthScreenContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        isLoading = state is AuthState.Loading
+    )
 }
 
 @Composable
 fun AuthScreenContent(
     state: AuthState,
     onEvent: (AuthScreenEvent) -> Unit,
+    isLoading: Boolean
 ) {
+
+    val context = LocalContext.current
+    val activity = context as Activity
+
     Scaffold { scaffoldPadding ->
         Column(
             modifier = Modifier
@@ -86,12 +106,16 @@ fun AuthScreenContent(
             }
             GoogleButton(
                 isLoading = false,
-                onClick = { }
+                onClick = {
+                    onEvent(AuthScreenEvent.RequestGoogleLogin(activity = activity))
+                }
             )
             Spacer(modifier = Modifier.height(12.dp))
             PrimaryButton(
                 text = stringResource(R.string.guest_text),
-                onClick = { }
+                onClick = {
+                    onEvent(AuthScreenEvent.RequestGuestLogin)
+                }
             )
         }
     }
@@ -103,8 +127,9 @@ fun AuthScreenContent(
 private fun Preview() {
     BurgerRestaurantTheme {
         AuthScreenContent(
-            state = AuthState(),
-            onEvent = {}
+            state = AuthState.Idle,
+            onEvent = {},
+            isLoading = false
         )
     }
 }

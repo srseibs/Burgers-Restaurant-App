@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthScreen
+import com.sailinghawklabs.burgerrestaurant.feature.home.HomeScreen
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashScreen
 
 
@@ -29,9 +30,18 @@ fun Navigator(
 
         composable<Destination.AuthScreen> {
             AuthScreen(
+                onGotoHomeScreen = {
+                    navController.navigateAndDontComeBack(Destination.HomeGraph)
+                }
+            )
+        }
+
+        composable<Destination.HomeGraph> {
+            HomeScreen(
                 onGotoMainScreen = {}
             )
         }
+
     }
 
 }

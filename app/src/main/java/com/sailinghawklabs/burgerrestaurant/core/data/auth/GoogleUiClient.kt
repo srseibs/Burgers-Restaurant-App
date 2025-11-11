@@ -2,6 +2,7 @@ package com.sailinghawklabs.burgerrestaurant.core.data.auth
 
 import android.app.Activity
 import android.content.Context
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -49,5 +50,17 @@ class GoogleUiClient(
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
         return auth.signInWithCredential(firebaseCredential).await()
     }
+
+    suspend fun guestSignIn(): AuthResult =
+        auth.signInAnonymously().await()
+
+    suspend fun signOut() {
+        auth.signOut()
+        runCatching {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        }
+    }
+
+    val currentUser get() = auth.currentUser
 
 }
