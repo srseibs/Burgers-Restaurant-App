@@ -42,11 +42,14 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.BrandYellow
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 import com.sailinghawklabs.burgerrestaurant.ui.theme.sentientVariableFont
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SplashScreen(
     modifier: Modifier = Modifier,
-    onDoneClick: () -> Unit = {}
+    onDoneClick: () -> Unit = {},
+    onAlreadyAuthed: () -> Unit = {},
+    viewModel: SplashViewModel = koinViewModel()
 ) {
 
 
@@ -94,7 +97,15 @@ fun SplashScreen(
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
-        SplashButton(onClick = onDoneClick)
+        SplashButton(
+            onClick = {
+                if (viewModel.userExists) {
+                    onAlreadyAuthed()
+                } else {
+                    onDoneClick()
+                }
+            }
+        )
         Spacer(modifier = Modifier.height(24.dp))
     }
 }

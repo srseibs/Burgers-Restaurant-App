@@ -24,6 +24,9 @@ fun Navigator(
             SplashScreen(
                 onDoneClick = {
                     navController.navigateAndDontComeBack(Destination.AuthScreen)
+                },
+                onAlreadyAuthed = {
+                    navController.navigateAndDontComeBack(Destination.HomeGraph)
                 }
             )
         }

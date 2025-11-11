@@ -3,7 +3,6 @@ package com.sailinghawklabs.burgerrestaurant.feature.auth
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
@@ -17,7 +16,6 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val customerRepository: CustomerRepository,
-    private val auth: FirebaseAuth,
     private val googleAuthUiClient: GoogleUiClient
 ) : ViewModel() {
 

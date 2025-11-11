@@ -7,6 +7,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
+import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -18,7 +19,11 @@ val appModule = module {
     single<CustomerRepository> { CustomerRepoImpl() }
 
     viewModel {
-        AuthViewModel(customerRepository = get(), auth = get(), googleAuthUiClient = get())
+        AuthViewModel(customerRepository = get(), googleAuthUiClient = get())
+    }
+
+    viewModel {
+        SplashViewModel(googleAuthUiClient = get())
     }
 
     single {
