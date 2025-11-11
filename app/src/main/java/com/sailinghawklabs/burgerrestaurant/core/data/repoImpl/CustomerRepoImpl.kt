@@ -26,7 +26,7 @@ class CustomerRepoImpl() : CustomerRepository {
                 lastName = user.displayName?.split(" ")?.lastOrNull() ?: "Unknown",
                 email = user.email ?: "Unknown"
             )
-            docRef.set(Customer).await()
+            docRef.set(customer).await()
         }
     }
 

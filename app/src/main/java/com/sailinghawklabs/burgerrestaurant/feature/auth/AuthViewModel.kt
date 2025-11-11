@@ -50,7 +50,6 @@ class AuthViewModel(
         _state.value = AuthState.Loading
         viewModelScope.launch {
             val result = customerRepository.createCustomer(user)
-            println("onFirebaseUserSignIn: result = $result")
             if (result.isSuccess) {
                 _state.value = AuthState.Success
                 _commands.send(AuthScreenCommand.NavigateToMainScreen)
@@ -61,16 +60,12 @@ class AuthViewModel(
         }
     }
 
-
     private fun loginWithGoogle(activity: Activity) {
         _state.value = AuthState.Loading
         viewModelScope.launch {
             try {
                 val authResult = googleAuthUiClient.signInWithGoogle(activity)
-                println("google: authResult = $authResult")
                 val user = authResult.user
-                println("google: user = ${user.toString()}")
-                println("google: user is anon = ${user?.isAnonymous}")
 
                 if (user != null) {
                     logUserIntoFirebase(user)
@@ -88,11 +83,7 @@ class AuthViewModel(
         viewModelScope.launch {
             try {
                 val authResult = googleAuthUiClient.guestSignIn()
-                println("guest: authResult = $authResult")
                 val user = authResult.user
-                println("guest: user = ${user.toString()}")
-                println("guest: user is anon = ${user?.isAnonymous}")
-
                 if (user != null) {
                     logUserIntoFirebase(user)
                 } else {
@@ -103,5 +94,4 @@ class AuthViewModel(
             }
         }
     }
-
 }

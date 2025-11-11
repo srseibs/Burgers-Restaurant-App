@@ -101,8 +101,6 @@ fun AuthScreenContent(
                     fontFamily = oswaldVariableFont,
                     fontSize = AppFontSize.MEDIUM
                 )
-
-
             }
             GoogleButton(
                 isLoading = false,
