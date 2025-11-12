@@ -1,26 +1,31 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
+import com.sailinghawklabs.burgerrestaurant.feature.home.component.BurgersBottomBar
+import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestination
+import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
@@ -47,14 +52,48 @@ fun HomeScreenContent(
     state: HomeState,
     onEvent: (HomeScreenEvent) -> Unit,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Welcome home ...")
+    val navController = rememberNavController()
+    val defaultBottomDestination: BottomBarDestination = BottomBarDestination.ProductOverviewScreen
+    var selectedBottomDestination: BottomBarDestination by rememberSaveable {
+        mutableStateOf(defaultBottomDestination)
+    }
+
+    Scaffold(
+
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
+            NavHost(
+                modifier = Modifier.weight(1f),
+                navController = navController,
+                startDestination = defaultBottomDestination.destination
+            ) {
+                composable<Destination.ProductOverviewScreen> {
+                    Text(text = "Product Overview Screen")
+                }
+                composable<Destination.CartScreen> {
+                    Text(text = "Cart Screen")
+                }
+                composable<Destination.Notifications> {
+                    Text(text = "Notifications Screen")
+                }
+                composable<Destination.ProductOverviewScreen> {
+                    Text(text = "Categories")
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier.padding(12.dp)
+            ) {
+                BurgersBottomBar(
+                    selected = selectedBottomDestination,
+                    onSelect = { selectedBottomDestination = it }
+                )
+            }
+        }
     }
 
 }
@@ -67,17 +106,5 @@ private fun Preview() {
             state = HomeState(),
             onEvent = {}
         )
-    }
-}
-
-@Composable
-fun <T> ObserveAsCommand(flow: Flow<T>, onCommand: (T) -> Unit) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(flow, lifecycleOwner.lifecycle) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect(onCommand)
-            }
-        }
     }
 }
