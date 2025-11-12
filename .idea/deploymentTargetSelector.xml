@@ -5,10 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="GoogleButtonPrev">
+      <SelectionState runConfigName="Phone - Landscape - Preview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Phone - Landscape - Preview">
+      <SelectionState runConfigName="CustomDrawerPrev">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="Preview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

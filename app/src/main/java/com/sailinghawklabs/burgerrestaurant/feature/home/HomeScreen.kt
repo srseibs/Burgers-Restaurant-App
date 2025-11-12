@@ -2,10 +2,13 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -19,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,13 +33,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseUser
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.home.component.BurgersBottomBar
+import com.sailinghawklabs.burgerrestaurant.feature.home.component.CustomDrawer
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestination
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.nav.navigateAndDontComeBack
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
+import com.sailinghawklabs.burgerrestaurant.ui.theme.BrandBrown
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
@@ -48,9 +55,10 @@ fun HomeScreen(
     onGotoMainScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currentUser = state.currentUser
 
     HomeScreenContent(
-        state = state,
+        currentUser = currentUser,
         onEvent = viewModel::onEvent
     )
 
@@ -65,7 +73,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
-    state: HomeState,
+    currentUser: FirebaseUser? = null,
     onEvent: (HomeScreenEvent) -> Unit,
 ) {
     val navController = rememberNavController()
@@ -91,6 +99,8 @@ fun HomeScreenContent(
         }
     }
 
+
+// https://youtu.be/2E3mR7mEvtI?si=pYVgAy-LflFPn1G4&t=3703
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -109,7 +119,9 @@ fun HomeScreenContent(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.menu),
@@ -141,7 +153,7 @@ fun HomeScreenContent(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
         ) {
             NavHost(
                 modifier = Modifier.weight(1f),
@@ -162,27 +174,39 @@ fun HomeScreenContent(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier.padding(12.dp)
-            ) {
+            Box {
                 BurgersBottomBar(
+                    modifier = Modifier.align(Alignment.BottomCenter),
                     selected = selectedBottomDestination,
                     onSelect = {
                         navController.navigateAndDontComeBack(it.destination)
                     }
                 )
+
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CustomDrawer(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(0.7f)
+                            .background(BrandBrown),
+                        photoUrl = currentUser?.photoUrl.toString(),
+                        displayName = currentUser?.displayName
+                    )
+                }
             }
         }
     }
-
 }
+
 
 @Preview
 @Composable
 private fun Preview() {
     BurgerRestaurantTheme {
         HomeScreenContent(
-            state = HomeState(),
+            currentUser = null,
             onEvent = {}
         )
     }

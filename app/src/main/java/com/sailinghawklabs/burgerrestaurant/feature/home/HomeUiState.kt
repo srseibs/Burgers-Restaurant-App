@@ -1,6 +1,8 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home
 
+import com.google.firebase.auth.FirebaseUser
+
 data class HomeState(
-    val paramOne: String = "default",
-    val paramTwo: List<String> = emptyList(),
+    val currentUser: FirebaseUser? = null,
+
 )
