@@ -41,7 +41,9 @@ fun Navigator(
 
         composable<Destination.HomeGraph> {
             HomeScreen(
-                onGotoMainScreen = {}
+                onSignedOut = {
+                    navController.navigateAndDontComeBack(Destination.AuthScreen)
+                }
             )
         }
 

@@ -2,5 +2,6 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 
 // One-time commands from the ViewModel ---> to the Screen
 sealed interface HomeScreenCommand {
-    data object NavigateToMainScreen : HomeScreenCommand
+    data object ExitDueToUserSignedOff : HomeScreenCommand
+    data class ShowErrorMessage(val message: String) : HomeScreenCommand
 }

@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -40,7 +42,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -63,14 +64,18 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel(),
-    onGotoMainScreen: () -> Unit
+    viewModel: HomeViewModel = koinViewModel(),
+    onSignedOut: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentUser = state.currentUser
+    val context = LocalContext.current
+
+
 
     HomeScreenContent(
         currentUser = currentUser,
@@ -79,7 +84,10 @@ fun HomeScreen(
 
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
-            HomeScreenCommand.NavigateToMainScreen -> onGotoMainScreen()
+            HomeScreenCommand.ExitDueToUserSignedOff -> onSignedOut()
+            is HomeScreenCommand.ShowErrorMessage -> {
+                Toast.makeText(context, command.message, Toast.LENGTH_LONG)
+            }
         }
     }
 }
@@ -131,7 +139,7 @@ fun HomeScreenContent(
         targetValue = if (drawerState.isOpen()) 0.9f else 1f
     )
     val animatedRadius by animateDpAsState(
-        targetValue = if (drawerState.isOpen()) 20.dp else 0.dp
+        targetValue = if (drawerState.isOpen()) 40.dp else 0.dp
     )
 
 
@@ -142,7 +150,8 @@ fun HomeScreenContent(
     ) {
         CustomDrawer(
             photoUrl = currentUser?.photoUrl.toString(),
-            displayName = currentUser?.displayName
+            displayName = currentUser?.displayName,
+            onSignOutClick = { onEvent(HomeScreenEvent.LogoutRequest) },
         )
 
         // Box for the Scaffold
@@ -154,10 +163,10 @@ fun HomeScreenContent(
                 .dropShadow(
                     shape = RoundedCornerShape(animatedRadius),
                     shadow = Shadow(
-                        radius = 5.dp,
-                        spread = 15.dp,
+                        radius = 15.dp,
+                        spread = 3.dp,
                         color = Color.Black.copy(0.3f),
-                        offset = DpOffset(x = (-4).dp, 6.dp)
+                        offset = DpOffset(x = (-6).dp, 6.dp)
                     )
                 )
                 .clip(RoundedCornerShape(animatedRadius))

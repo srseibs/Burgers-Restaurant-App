@@ -3,9 +3,11 @@ package com.sailinghawklabs.burgerrestaurant.core.data.repoImpl
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.tasks.await
 
 class CustomerRepoImpl() : CustomerRepository {
@@ -27,6 +29,15 @@ class CustomerRepoImpl() : CustomerRepository {
                 email = user.email ?: "Unknown"
             )
             docRef.set(customer).await()
+        }
+    }
+
+    override suspend fun signOut(): RequestState<Unit> {
+        return try {
+            Firebase.auth.signOut()
+            RequestState.Success(Unit)
+        } catch (e: Exception) {
+            RequestState.Error("Error while signing out: ${e.message}")
         }
     }
 

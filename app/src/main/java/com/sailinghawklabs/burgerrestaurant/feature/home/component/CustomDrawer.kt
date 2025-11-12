@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -47,8 +48,8 @@ fun CustomDrawer(
     Column(
         modifier = modifier
             .fillMaxHeight()
-            .fillMaxWidth(0.6f)
-            .padding(12.dp),
+            .wrapContentWidth()
+            .padding(vertical = 12.dp, horizontal = 24.dp),
         verticalArrangement = Arrangement.Top
     ) {
         Spacer(modifier = Modifier.height(50.dp))

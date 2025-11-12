@@ -3,6 +3,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -10,8 +11,11 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val customerRepository: CustomerRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
     val state = _state
@@ -35,12 +39,26 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private fun logout() {
+        viewModelScope.launch {
+            val result = customerRepository.signOut()
+            if (result.isSuccess()) {
+                _commands.send(HomeScreenCommand.ExitDueToUserSignedOff)
+            } else if (result.isError()) {
+
+            }
+        }
+    }
+
     private val _commands = Channel<HomeScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
 
     fun onEvent(event: HomeScreenEvent) {
         when (event) {
-            else -> TODO("Handle events")
+            is HomeScreenEvent.LogoutRequest -> {
+                logout()
+            }
+
         }
     }
 
