@@ -3,8 +3,8 @@ package com.sailinghawklabs.burgerrestaurant.feature.home.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -29,8 +29,7 @@ fun DrawerItemCard(
 ) {
     Row(
         modifier = modifier
-            .width(200.dp)
-            .padding(12.dp)
+            .widthIn(min = 100.dp, max = 200.dp)
             .clip(RoundedCornerShape(100))
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically

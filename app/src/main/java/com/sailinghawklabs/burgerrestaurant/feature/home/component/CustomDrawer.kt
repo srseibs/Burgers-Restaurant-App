@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -49,8 +50,8 @@ fun CustomDrawer(
         modifier = modifier
             .fillMaxHeight()
             .wrapContentWidth()
-            .padding(vertical = 12.dp, horizontal = 24.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.Top)
     ) {
         Spacer(modifier = Modifier.height(50.dp))
 
@@ -92,6 +93,7 @@ fun CustomDrawer(
             thickness = 2.dp,
             color = Color.Black
         )
+
         DrawerItemCard(drawerItem = DrawerItem.Profile, onClick = onProfileClick)
         DrawerItemCard(drawerItem = DrawerItem.Locations, onClick = onLocationsClick)
         DrawerItemCard(drawerItem = DrawerItem.Rewards, onClick = onRewardsClick)
@@ -102,7 +104,7 @@ fun CustomDrawer(
         Spacer(modifier = Modifier.weight(1f))
 
         DrawerItemCard(drawerItem = DrawerItem.AdminPanel, onClick = onAdminClick)
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
     }
 }
