@@ -2,15 +2,17 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,11 +23,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +49,9 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.home.component.BurgersBottomBar
 import com.sailinghawklabs.burgerrestaurant.feature.home.component.CustomDrawer
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestination
+import com.sailinghawklabs.burgerrestaurant.feature.home.domain.CustomDrawerState
+import com.sailinghawklabs.burgerrestaurant.feature.home.domain.isOpen
+import com.sailinghawklabs.burgerrestaurant.feature.home.domain.reverse
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.nav.navigateAndDontComeBack
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -89,6 +102,7 @@ fun HomeScreenContent(
         }
     }
 
+    // this prevents the back button from closing the app and redirects to the default destination
     BackHandler {
         if (navController.previousBackStackEntry != null) {
             navController.popBackStack()
@@ -99,100 +113,127 @@ fun HomeScreenContent(
         }
     }
 
+// https://youtu.be/2E3mR7mEvtI?si=M5uhzTkPxciAhxlI&t=5491
 
-// https://youtu.be/2E3mR7mEvtI?si=pYVgAy-LflFPn1G4&t=3703
-    Scaffold(
-        containerColor = Surface,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    AnimatedContent(
-                        targetState = selectedBottomDestination,
-                    ) { destination ->
-                        Text(
-                            text = destination.title,
-                            fontFamily = oswaldVariableFont,
-                            fontSize = AppFontSize.LARGE,
-                            color = TextPrimary
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
+    val screenWidthPx = getScreenWidthInPx()
+    val screenWidthDp = getScreenWidthDp()
+    println("screenWidthPx: $screenWidthPx, screenWidthDp: $screenWidthDp")
 
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.menu),
-                            contentDescription = "menu icon",
-                            tint = IconPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    scrolledContainerColor = Surface,
-                    navigationIconContentColor = IconPrimary,
-                    titleContentColor = TextPrimary,
-                    actionIconContentColor = IconPrimary
-                ),
-                actions = {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.search),
-                            contentDescription = "search icon"
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = modifier
+    var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
+    val drawerOffsetDp by remember { derivedStateOf { screenWidthDp * .5f } }
+
+    val animatedOffsetDp by animateDpAsState(
+        targetValue = if (drawerState.isOpen()) drawerOffsetDp else 0.dp
+    )
+    val animatedScale by animateFloatAsState(
+        targetValue = if (drawerState.isOpen()) 0.9f else 1f
+    )
+    val animatedRadius by animateDpAsState(
+        targetValue = if (drawerState.isOpen()) 20.dp else 0.dp
+    )
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BrandBrown)
+    ) {
+        CustomDrawer(
+            photoUrl = currentUser?.photoUrl.toString(),
+            displayName = currentUser?.displayName
+        )
+
+        // Box for the Scaffold
+        Box(
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            NavHost(
-                modifier = Modifier.weight(1f),
-                navController = navController,
-                startDestination = defaultBottomDestination.destination
-            ) {
-                composable<Destination.ProductOverviewScreen> {
-                    Text(text = "Products Screen")
-                }
-                composable<Destination.CartScreen> {
-                    Text(text = "Cart Screen")
-                }
-                composable<Destination.Notifications> {
-                    Text(text = "Notifications Screen")
-                }
-                composable<Destination.Categories> {
-                    Text(text = "Categories")
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Box {
-                BurgersBottomBar(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    selected = selectedBottomDestination,
-                    onSelect = {
-                        navController.navigateAndDontComeBack(it.destination)
-                    }
+                .offset(animatedOffsetDp)
+                .scale(animatedScale)
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(animatedRadius),
+                    ambientColor = Color.Black,
+                    spotColor = Color.Black
                 )
+                .clip(RoundedCornerShape(animatedRadius))
 
-                Box(
-                    modifier = Modifier.fillMaxSize()
+        ) {
+            Scaffold(
+                containerColor = Surface,
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            AnimatedContent(
+                                targetState = selectedBottomDestination
+                            ) { destination ->
+                                Text(
+                                    text = destination.title,
+                                    fontFamily = oswaldVariableFont,
+                                    fontSize = AppFontSize.LARGE,
+                                    color = TextPrimary
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = { drawerState = drawerState.reverse() }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.menu),
+                                    contentDescription = "menu icon",
+                                    tint = IconPrimary
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Surface,
+                            scrolledContainerColor = Surface,
+                            navigationIconContentColor = IconPrimary,
+                            titleContentColor = TextPrimary,
+                            actionIconContentColor = IconPrimary
+                        ),
+                        actions = {
+                            IconButton(
+                                onClick = {}
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.search),
+                                    contentDescription = "search icon"
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
                 ) {
-                    CustomDrawer(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.7f)
-                            .background(BrandBrown),
-                        photoUrl = currentUser?.photoUrl.toString(),
-                        displayName = currentUser?.displayName
+                    NavHost(
+                        modifier = Modifier.weight(1f),
+                        navController = navController,
+                        startDestination = defaultBottomDestination.destination
+                    ) {
+                        composable<Destination.ProductOverviewScreen> {
+                            Text(text = "Products Screen")
+                        }
+                        composable<Destination.CartScreen> {
+                            Text(text = "Cart Screen")
+                        }
+                        composable<Destination.Notifications> {
+                            Text(text = "Notifications Screen")
+                        }
+                        composable<Destination.Categories> {
+                            Text(text = "Categories")
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BurgersBottomBar(
+                        selected = selectedBottomDestination,
+                        onSelect = {
+                            navController.navigateAndDontComeBack(it.destination)
+                        }
                     )
                 }
             }
@@ -200,6 +241,19 @@ fun HomeScreenContent(
     }
 }
 
+@Composable
+fun getScreenWidthInPx(): Int {
+    val windowInfo = LocalWindowInfo.current
+    val screenWidthPx = windowInfo.containerSize.width
+    return screenWidthPx
+}
+
+@Composable
+fun getScreenWidthDp(): Dp {
+    val widthPx = LocalWindowInfo.current.containerSize.width
+    val widthDp = with(LocalDensity.current) { widthPx.toDp() }
+    return widthDp
+}
 
 @Preview
 @Composable
