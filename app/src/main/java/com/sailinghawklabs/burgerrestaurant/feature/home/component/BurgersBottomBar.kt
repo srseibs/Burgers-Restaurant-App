@@ -59,6 +59,7 @@ fun BurgersBottomBar(
                         text = destination.label,
                     )
                 },
+                alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = IconSecondary,
                     selectedIconColor = White,

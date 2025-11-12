@@ -18,19 +18,19 @@ enum class BottomBarDestination(
     ),
     CartScreen(
         icon = Resources.Icon.ShoppingCart,
-        title = "Burgers",
+        title = "Cart",
         label = "Cart",
         destination = Destination.CartScreen
     ),
     NotificationScreen(
         icon = Resources.Icon.Bell,
-        title = "Burgers",
+        title = "Notifications",
         label = "Notifications",
         destination = Destination.Notifications
     ),
     CategoryScreen(
         icon = Resources.Icon.Categories,
-        title = "Burgers",
+        title = "Categories",
         label = "Categories",
         destination = Destination.Categories
     )
