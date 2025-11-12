@@ -9,10 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,11 +19,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.home.component.BurgersBottomBar
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestination
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
+import com.sailinghawklabs.burgerrestaurant.feature.nav.navigateAndDontComeBack
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 
 @Composable
@@ -54,13 +55,22 @@ fun HomeScreenContent(
 ) {
     val navController = rememberNavController()
     val defaultBottomDestination: BottomBarDestination = BottomBarDestination.ProductOverviewScreen
-    var selectedBottomDestination: BottomBarDestination by rememberSaveable {
-        mutableStateOf(defaultBottomDestination)
+
+    val currentDestination = navController.currentBackStackEntryAsState()
+    val selectedBottomDestination by remember(currentDestination.value) {
+        derivedStateOf {
+            val route = currentDestination.value?.destination?.route
+            if (route == null) {
+                defaultBottomDestination
+            } else {
+                BottomBarDestination.entries.firstOrNull() {
+                    it.destination::class.qualifiedName == route
+                } ?: defaultBottomDestination
+            }
+        }
     }
 
-    Scaffold(
-
-    ) { paddingValues ->
+    Scaffold() { paddingValues ->
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -72,7 +82,7 @@ fun HomeScreenContent(
                 startDestination = defaultBottomDestination.destination
             ) {
                 composable<Destination.ProductOverviewScreen> {
-                    Text(text = "Product Overview Screen")
+                    Text(text = "Products Screen")
                 }
                 composable<Destination.CartScreen> {
                     Text(text = "Cart Screen")
@@ -80,7 +90,7 @@ fun HomeScreenContent(
                 composable<Destination.Notifications> {
                     Text(text = "Notifications Screen")
                 }
-                composable<Destination.ProductOverviewScreen> {
+                composable<Destination.Categories> {
                     Text(text = "Categories")
                 }
             }
@@ -90,7 +100,9 @@ fun HomeScreenContent(
             ) {
                 BurgersBottomBar(
                     selected = selectedBottomDestination,
-                    onSelect = { selectedBottomDestination = it }
+                    onSelect = {
+                        navController.navigateAndDontComeBack(it.destination)
+                    }
                 )
             }
         }
