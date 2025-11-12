@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -63,6 +64,16 @@ fun HomeScreenContent(
             BottomBarDestination.entries.firstOrNull {
                 it.destination::class.qualifiedName == route
             } ?: defaultBottomDestination
+        }
+    }
+
+    BackHandler {
+        if (navController.previousBackStackEntry != null) {
+            navController.popBackStack()
+        } else {
+            if (selectedBottomDestination != defaultBottomDestination) {
+                navController.navigateAndDontComeBack(defaultBottomDestination.destination)
+            }
         }
     }
 
