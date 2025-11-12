@@ -60,13 +60,9 @@ fun HomeScreenContent(
     val selectedBottomDestination by remember(currentDestination.value) {
         derivedStateOf {
             val route = currentDestination.value?.destination?.route
-            if (route == null) {
-                defaultBottomDestination
-            } else {
-                BottomBarDestination.entries.firstOrNull() {
-                    it.destination::class.qualifiedName == route
-                } ?: defaultBottomDestination
-            }
+            BottomBarDestination.entries.firstOrNull {
+                it.destination::class.qualifiedName == route
+            } ?: defaultBottomDestination
         }
     }
 
