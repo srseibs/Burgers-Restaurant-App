@@ -7,7 +7,7 @@ interface CustomerRepository {
 
     fun getCurrentUserId(): String?
 
-    suspend fun createCustomer(user: FirebaseUser): Result<Unit>
+    suspend fun createCustomer(user: FirebaseUser): RequestState<Unit>
 
     suspend fun signOut(): RequestState<Unit>
 

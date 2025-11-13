@@ -49,11 +49,11 @@ class AuthViewModel(
         viewModelScope.launch {
             _state.value = AuthState.Loading
             val result = customerRepository.createCustomer(user)
-            if (result.isSuccess) {
+            if (result.isSuccess()) {
                 _state.value = AuthState.Success
                 _commands.send(AuthScreenCommand.NavigateToMainScreen)
             } else {
-                val message = result.exceptionOrNull()?.message ?: "Could not create customer"
+                val message = result.getErrorMessage()
                 _state.value = AuthState.Error("vm: $message")
             }
         }
