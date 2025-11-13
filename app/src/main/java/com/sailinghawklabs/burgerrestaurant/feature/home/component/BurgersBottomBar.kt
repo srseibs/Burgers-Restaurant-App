@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestination
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.IconSecondary
-import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceDarker
+import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceDark
 import com.sailinghawklabs.burgerrestaurant.ui.theme.White
 
 @Composable
@@ -38,7 +38,7 @@ fun BurgersBottomBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceDarker)
+            .background(SurfaceDark)
             .padding(vertical = 12.dp, horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

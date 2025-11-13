@@ -45,7 +45,6 @@ class AuthViewModel(
     }
 
     private fun logUserIntoFirebase(user: FirebaseUser) {
-
         viewModelScope.launch {
             _state.value = AuthState.Loading
             val result = customerRepository.createCustomer(user)
