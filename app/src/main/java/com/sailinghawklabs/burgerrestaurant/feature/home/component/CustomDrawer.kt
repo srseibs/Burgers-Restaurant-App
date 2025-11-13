@@ -1,6 +1,5 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.DrawerItem
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -55,29 +54,41 @@ fun CustomDrawer(
     ) {
         Spacer(modifier = Modifier.height(50.dp))
 
-        SubcomposeAsyncImage(
-            model = photoUrl,
-            contentDescription = "Profile photo",
+        val imageModel = if (LocalInspectionMode.current) null else photoUrl
+
+        AsyncImage(
+            model = imageModel,
+            contentDescription = "Profile picture",
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape),
-
-            contentScale = ContentScale.Fit,
-            error = {
-                if (LocalInspectionMode.current) {
-                    Image(
-                        painter = painterResource(R.drawable.burger),
-                        contentDescription = "Dummy image",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                    )
-                } else {
-                    Text("Error loading image")
-                }
-            }
+            contentScale = ContentScale.Crop,
+            fallback = painterResource(R.drawable.user)
         )
+
+//        SubcomposeAsyncImage(
+//            model = photoUrl,
+//            contentDescription = "Profile photo",
+//            modifier = Modifier
+//                .size(120.dp)
+//                .clip(CircleShape),
+//
+//            contentScale = ContentScale.Fit,
+//            error = {
+//                if (LocalInspectionMode.current) {
+//                    Image(
+//                        painter = painterResource(R.drawable.burger),
+//                        contentDescription = "Dummy image",
+//                        contentScale = ContentScale.Fit,
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .clip(CircleShape)
+//                    )
+//                } else {
+//                    Text("Error loading image")
+//                }
+//            }
+//        )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "Welcome ${displayName?.split(" ")?.firstOrNull() ?: "User"}",
