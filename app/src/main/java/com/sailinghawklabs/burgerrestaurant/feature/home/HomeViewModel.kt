@@ -42,10 +42,13 @@ class HomeViewModel(
     private fun logout() {
         viewModelScope.launch {
             val result = customerRepository.signOut()
+
             if (result.isSuccess()) {
                 _commands.send(HomeScreenCommand.ExitDueToUserSignedOff)
             } else if (result.isError()) {
-
+                _commands.send(
+                    HomeScreenCommand.ShowErrorMessage(result.getErrorMessage())
+                )
             }
         }
     }
@@ -57,6 +60,12 @@ class HomeViewModel(
         when (event) {
             is HomeScreenEvent.LogoutRequest -> {
                 logout()
+            }
+
+            is HomeScreenEvent.RequestProfile -> {
+                viewModelScope.launch {
+                    _commands.send(HomeScreenCommand.NavigateToProfile)
+                }
             }
 
         }

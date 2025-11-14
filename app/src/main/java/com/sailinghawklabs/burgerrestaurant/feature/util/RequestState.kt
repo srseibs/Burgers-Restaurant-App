@@ -83,5 +83,3 @@ fun <T> RequestState<T>.DisplayResult(
         }
     }
 }
-
-// https://youtu.be/2E3mR7mEvtI?si=y97lOuTWRl1xbjBJ&t=267

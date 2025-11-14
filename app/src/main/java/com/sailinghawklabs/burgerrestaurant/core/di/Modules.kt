@@ -8,6 +8,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
+import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -28,6 +29,10 @@ val appModule = module {
     }
     viewModel {
         HomeViewModel(customerRepository = get())
+    }
+
+    viewModel {
+        ProfileViewModel()
     }
 
     single {

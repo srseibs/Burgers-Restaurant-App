@@ -69,6 +69,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
+    onProfileClick: () -> Unit,
     onSignedOut: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -85,8 +86,13 @@ fun HomeScreen(
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
             HomeScreenCommand.ExitDueToUserSignedOff -> onSignedOut()
+
             is HomeScreenCommand.ShowErrorMessage -> {
                 Toast.makeText(context, command.message, Toast.LENGTH_LONG)
+            }
+
+            is HomeScreenCommand.NavigateToProfile -> {
+                onProfileClick()
             }
         }
     }
@@ -123,8 +129,6 @@ fun HomeScreenContent(
         }
     }
 
-// https://youtu.be/2E3mR7mEvtI?si=M5uhzTkPxciAhxlI&t=5491
-
     val screenWidthPx = getScreenWidthInPx()
     val screenWidthDp = getScreenWidthDp()
     println("screenWidthPx: $screenWidthPx, screenWidthDp: $screenWidthDp")
@@ -152,6 +156,7 @@ fun HomeScreenContent(
             photoUrl = currentUser?.photoUrl.toString(),
             displayName = currentUser?.displayName,
             onSignOutClick = { onEvent(HomeScreenEvent.LogoutRequest) },
+            onProfileClick = { onEvent(HomeScreenEvent.RequestProfile) }
         )
 
         // Box for the Scaffold
