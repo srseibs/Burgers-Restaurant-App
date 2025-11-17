@@ -25,6 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
+import com.sailinghawklabs.burgerrestaurant.feature.profile.validateFirstName
+import com.sailinghawklabs.burgerrestaurant.feature.profile.validateLastName
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderError
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -41,11 +43,11 @@ fun BurgerTextField(
     onValueChange: (String) -> Unit,
     label: String? = null,
     enabled: Boolean = true,
-    isError: Boolean = false,
     errorMessage: String? = null,
     expanded: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
 ) {
+    val isError = errorMessage == null
     val cornerSize = 8.dp
 
 
@@ -53,7 +55,7 @@ fun BurgerTextField(
         {
             if (errorMessage != null) {
                 if (isError) {
-                    Text(text = errorMessage)
+                    Text(text = errorMessage.toString())
                 } else if (value.isNotEmpty()) {
                     Icon(
                         painter = painterResource(R.drawable.check),
@@ -140,22 +142,19 @@ private fun BurgerTestFieldPrev() {
                 label = "First Name",
                 value = first,
                 onValueChange = { first = it },
-                isError = first.length !in 7..50,
-                errorMessage = "must be 7 to 50 characters",
+                errorMessage = first.validateFirstName(),
             )
 
             BurgerTextField(
                 label = "Last Name",
                 value = last,
                 onValueChange = { last = it },
-                isError = last.length !in 2..50,
-                errorMessage = "must be 2 and 50 characters"
+                errorMessage = last.validateLastName(),
             )
 
             BurgerTextField(
                 value = last,
                 onValueChange = { last = it },
-                isError = false,
                 errorMessage = null
             )
 
@@ -164,7 +163,6 @@ private fun BurgerTestFieldPrev() {
                 label = "Email",
                 value = "bob@aol.com",
                 onValueChange = { },
-                isError = false,
                 errorMessage = null
             )
 

@@ -93,17 +93,17 @@ fun ProfileScreenContent(
                 .imePadding()
         ) {
             ProfileForm(
-                firstName = "John",
-                onFirstNameChange = {},
-                lastName = "Doe",
-                onLastNameChange = {},
-                email = "john.doe@email.com",
-                city = "Anytown",
-                onCityChange = {},
-                postalCode = "12345",
-                onPostalCodeChange = {},
-                phoneNumber = "123-456-7890",
-                onPhoneNumberChange = {},
+                firstName = state.firstName,
+                onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
+                lastName = state.lastName,
+                onLastNameChange = { onEvent(ProfileScreenEvent.LastNameChanged(it)) },
+                email = state.email,
+                city = state.city,
+                onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
+                postalCode = state.postalCode.toString(),
+                onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
+                phoneNumber = state.phoneNumber.toString(),
+                onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
             )
 
         }

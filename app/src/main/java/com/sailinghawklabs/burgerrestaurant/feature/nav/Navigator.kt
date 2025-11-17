@@ -46,7 +46,7 @@ fun Navigator(
                     navController.navigateAndDontComeBack(Destination.AuthScreen)
                 },
                 onProfileClick = {
-                    navController.navigateAndDontComeBack(Destination.ProfileScreen)
+                    navController.navigate(Destination.ProfileScreen)
                 }
             )
         }

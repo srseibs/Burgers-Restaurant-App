@@ -32,7 +32,7 @@ val appModule = module {
     }
 
     viewModel {
-        ProfileViewModel()
+        ProfileViewModel(get())
     }
 
     single {
