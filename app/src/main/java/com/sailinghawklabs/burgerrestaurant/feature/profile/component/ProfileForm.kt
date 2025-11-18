@@ -9,12 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validateCity
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validateFirstName
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validateLastName
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validatePhoneNumber
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validatePostalCode
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 
 @Composable
@@ -27,9 +23,9 @@ fun ProfileForm(
     email: String,
     city: String?,
     onCityChange: (String) -> Unit,
-    postalCode: String?,
+    postalCode: Int?,
     onPostalCodeChange: (String) -> Unit,
-    phoneNumber: String,
+    phoneNumber: PhoneNumber?,
     onPhoneNumberChange: (String) -> Unit,
 ) {
     Column(
@@ -42,13 +38,13 @@ fun ProfileForm(
             label = "First Name",
             value = firstName,
             onValueChange = onFirstNameChange,
-            errorMessage = firstName.validateFirstName()
+            errorMessage = FormValidators.validateFirstName(firstName)
         )
         BurgerTextField(
             label = "Last Name",
             value = lastName,
             onValueChange = onLastNameChange,
-            errorMessage = lastName.validateLastName(),
+            errorMessage = FormValidators.validateLastName(lastName),
         )
         BurgerTextField(
             label = "Email",
@@ -61,19 +57,19 @@ fun ProfileForm(
             label = "City",
             value = city ?: "",
             onValueChange = onCityChange,
-            errorMessage = city?.validateCity(),
+            errorMessage = FormValidators.validateCity(city),
         )
         BurgerTextField(
             label = "Postal code",
-            value = postalCode ?: "",
+            value = postalCode?.toString() ?: "",
             onValueChange = onPostalCodeChange,
-            errorMessage = postalCode.validatePostalCode(),
+            errorMessage = FormValidators.validatePostalCode(postalCode),
         )
         BurgerTextField(
             label = "Phone number",
-            value = phoneNumber,
+            value = phoneNumber?.number ?: "",
             onValueChange = onPhoneNumberChange,
-            errorMessage = phoneNumber.validatePhoneNumber(),
+            errorMessage = FormValidators.validatePhoneNumber(phoneNumber),
         )
     }
 }
@@ -90,9 +86,12 @@ private fun ProfileFormPrev() {
             email = "john.doe@email.com",
             city = "Anytown",
             onCityChange = {},
-            postalCode = "12345",
+            postalCode = 12345,
             onPostalCodeChange = {},
-            phoneNumber = "123-456-7890",
+            phoneNumber = PhoneNumber(
+                dialCode = 1,
+                number = "555-555-5555"
+            ),
             onPhoneNumberChange = {},
         )
     }

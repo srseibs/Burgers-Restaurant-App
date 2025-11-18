@@ -2,7 +2,6 @@ package com.sailinghawklabs.burgerrestaurant.core.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.sailinghawklabs.burgerrestaurant.R
-
 import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl

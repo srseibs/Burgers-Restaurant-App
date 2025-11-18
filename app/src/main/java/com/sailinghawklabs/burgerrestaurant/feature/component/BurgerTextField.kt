@@ -25,8 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validateFirstName
-import com.sailinghawklabs.burgerrestaurant.feature.profile.validateLastName
+import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderError
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -47,29 +46,25 @@ fun BurgerTextField(
     expanded: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
 ) {
-    val isError = errorMessage == null
     val cornerSize = 8.dp
-
-
     val supportingText: (@Composable () -> Unit) =
         {
             if (errorMessage != null) {
-                if (isError) {
-                    Text(text = errorMessage.toString())
-                } else if (value.isNotEmpty()) {
-                    Icon(
-                        painter = painterResource(R.drawable.check),
-                        contentDescription = null,
-                        tint = Color(0xFF26884E),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
+                Text(text = errorMessage.toString())
+            } else if (value.isNotEmpty()) {
+                Icon(
+                    painter = painterResource(R.drawable.check),
+                    contentDescription = null,
+                    tint = Color(0xFF26884E),
+                    modifier = Modifier.size(16.dp)
+                )
             } else {
-                Text(text = "")
+                Text("")
             }
         }
 
 
+    val isError = errorMessage == null
 
     OutlinedTextField(
         value = value,
@@ -89,7 +84,7 @@ fun BurgerTextField(
         singleLine = !expanded,
         shape = RoundedCornerShape(cornerSize),
         colors = OutlinedTextFieldDefaults.colors(
-            // containers
+// containers
             focusedContainerColor = SurfaceLight,
             unfocusedContainerColor = SurfaceLight,
             disabledContainerColor = SurfaceLight,
@@ -102,7 +97,7 @@ fun BurgerTextField(
             focusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
             unfocusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
 
-            //border colors
+//border colors
             focusedBorderColor = SurfaceSecondary,
             unfocusedBorderColor = SurfaceSecondary,
             disabledBorderColor = SurfaceSecondary,
@@ -129,6 +124,7 @@ private fun BurgerTestFieldPrev() {
 
         var first by rememberSaveable { mutableStateOf("Mike") }
         var last by rememberSaveable { mutableStateOf("Seibel") }
+        var city by rememberSaveable { mutableStateOf("San Ramon") }
 
 
         Column(
@@ -142,20 +138,22 @@ private fun BurgerTestFieldPrev() {
                 label = "First Name",
                 value = first,
                 onValueChange = { first = it },
-                errorMessage = first.validateFirstName(),
+                errorMessage = FormValidators.validateFirstName(first),
             )
 
             BurgerTextField(
                 label = "Last Name",
                 value = last,
                 onValueChange = { last = it },
-                errorMessage = last.validateLastName(),
+                errorMessage = FormValidators.validateLastName(last)
+
             )
 
             BurgerTextField(
-                value = last,
-                onValueChange = { last = it },
-                errorMessage = null
+                label = "City",
+                value = city,
+                onValueChange = { city = it },
+                errorMessage = FormValidators.validateCity(city)
             )
 
             BurgerTextField(

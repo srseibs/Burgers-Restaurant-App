@@ -3,6 +3,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
+import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val customerRepository: CustomerRepository
+    private val customerRepository: CustomerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
@@ -27,13 +28,14 @@ class ProfileViewModel(
         )
 
     val isFormValid: Boolean
-        get() = with(_state.value) {
-            firstName.validateFirstName() == null &&
-                    lastName.validateLastName() == null &&
-                    city.validateCity() == null &&
-                    postalCode.validatePostalCode() == null &&
-                    address.validateAddress() == null &&
-                    phoneNumber.validatePhoneNumber() == null
+        get() {
+            val state = _state.value
+            return FormValidators.validateFirstName(state.firstName) == null &&
+                    FormValidators.validateLastName(state.lastName) == null &&
+                    FormValidators.validateCity(state.city) == null &&
+                    FormValidators.validatePostalCode(state.postalCode) == null &&
+                    FormValidators.validateAddress(state.address) == null &&
+                    FormValidators.validatePhoneNumber(state.phoneNumber) == null
         }
 
 

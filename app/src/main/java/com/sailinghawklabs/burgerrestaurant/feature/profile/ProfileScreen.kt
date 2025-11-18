@@ -100,9 +100,9 @@ fun ProfileScreenContent(
                 email = state.email,
                 city = state.city,
                 onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
-                postalCode = state.postalCode.toString(),
+                postalCode = state.postalCode,
                 onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
-                phoneNumber = state.phoneNumber.toString(),
+                phoneNumber = state.phoneNumber,
                 onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
             )
 
