@@ -129,9 +129,7 @@ fun HomeScreenContent(
         }
     }
 
-    val screenWidthPx = getScreenWidthInPx()
     val screenWidthDp = getScreenWidthDp()
-    println("screenWidthPx: $screenWidthPx, screenWidthDp: $screenWidthDp")
 
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     val drawerOffsetDp by remember { derivedStateOf { screenWidthDp * .5f } }

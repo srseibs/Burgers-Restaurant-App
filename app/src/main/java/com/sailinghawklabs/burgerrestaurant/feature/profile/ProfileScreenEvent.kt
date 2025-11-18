@@ -7,7 +7,8 @@ sealed interface ProfileScreenEvent {
     data class LastNameChanged(val text: String) : ProfileScreenEvent
     data class EmailChanged(val text: String) : ProfileScreenEvent
     data class CityChanged(val text: String) : ProfileScreenEvent
-    data class PostalCodeChanged(val text: String) : ProfileScreenEvent
+    data class PostalCodeChanged(val postalCode: Int?) : ProfileScreenEvent
+    data class AddressChanged(val text: String) : ProfileScreenEvent
     data class PhoneNumberChanged(val text: String) : ProfileScreenEvent
     data object Submit : ProfileScreenEvent
 }

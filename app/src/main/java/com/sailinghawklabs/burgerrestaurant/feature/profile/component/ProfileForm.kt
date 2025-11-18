@@ -2,7 +2,6 @@ package com.sailinghawklabs.burgerrestaurant.feature.profile.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -24,15 +23,16 @@ fun ProfileForm(
     city: String?,
     onCityChange: (String) -> Unit,
     postalCode: Int?,
-    onPostalCodeChange: (String) -> Unit,
+    onPostalCodeChange: (Int?) -> Unit,
+    address: String?,
+    onAddressChange: (String) -> Unit,
     phoneNumber: PhoneNumber?,
     onPhoneNumberChange: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
             .verticalScroll(state = rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         BurgerTextField(
             label = "First Name",
@@ -54,6 +54,12 @@ fun ProfileForm(
             errorMessage = null,
         )
         BurgerTextField(
+            label = "Address",
+            value = address ?: "",
+            onValueChange = onAddressChange,
+            errorMessage = FormValidators.validateAddress(address),
+        )
+        BurgerTextField(
             label = "City",
             value = city ?: "",
             onValueChange = onCityChange,
@@ -62,7 +68,7 @@ fun ProfileForm(
         BurgerTextField(
             label = "Postal code",
             value = postalCode?.toString() ?: "",
-            onValueChange = onPostalCodeChange,
+            onValueChange = { onPostalCodeChange(it.toIntOrNull()) },
             errorMessage = FormValidators.validatePostalCode(postalCode),
         )
         BurgerTextField(
@@ -93,6 +99,8 @@ private fun ProfileFormPrev() {
                 number = "555-555-5555"
             ),
             onPhoneNumberChange = {},
+            address = "123 Main St",
+            onAddressChange = {}
         )
     }
 }

@@ -1,9 +1,12 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,7 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sailinghawklabs.burgerrestaurant.R
+import com.sailinghawklabs.burgerrestaurant.feature.component.ButtonType
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
+import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileForm
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -36,9 +41,14 @@ fun ProfileScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val screenReady = state.screenReady
+    val isFormValid = viewModel.isFormDataValid
+
+
     ProfileScreenContent(
         state = state,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        isFormValid = { viewModel.isFormDataValid }
     )
 
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
@@ -52,6 +62,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenContent(
     state: ProfileState,
+    isFormValid: () -> Boolean,
     onEvent: (ProfileScreenEvent) -> Unit,
 ) {
     Scaffold(
@@ -93,6 +104,7 @@ fun ProfileScreenContent(
                 .imePadding()
         ) {
             ProfileForm(
+                modifier = Modifier.wrapContentHeight(),
                 firstName = state.firstName,
                 onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
                 lastName = state.lastName,
@@ -101,10 +113,21 @@ fun ProfileScreenContent(
                 city = state.city,
                 onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
                 postalCode = state.postalCode,
+                address = state.address,
+                onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
                 onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
                 phoneNumber = state.phoneNumber,
                 onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            PrimaryButton(
+                buttonType = ButtonType.PRIMARY,
+                enabled = isFormValid(),
+                text = "Primary",
+                icon = painterResource(id = R.drawable.check),
+                onClick = { onEvent(ProfileScreenEvent.Submit) }
+            )
+
 
         }
     }
@@ -116,6 +139,7 @@ private fun Preview() {
     BurgerRestaurantTheme {
         ProfileScreenContent(
             state = ProfileState(),
+            isFormValid = { true },
             onEvent = {}
         )
     }
