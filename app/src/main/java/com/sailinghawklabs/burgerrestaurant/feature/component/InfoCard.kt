@@ -2,6 +2,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
+import com.sailinghawklabs.burgerrestaurant.ui.theme.BrandBrown
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 
 @Composable
@@ -66,7 +68,8 @@ private fun InfoCardPrev() {
         InfoCard(
             image = R.drawable.ic_launcher_foreground,
             title = "Title",
-            subtitle = "Subtitle"
+            subtitle = "Subtitle",
+            modifier = Modifier.background(BrandBrown)
         )
     }
 }

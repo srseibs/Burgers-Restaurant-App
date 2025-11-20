@@ -245,16 +245,16 @@ fun HomeScreenContent(
                         startDestination = defaultBottomDestination.destination
                     ) {
                         composable<Destination.ProductOverviewScreen> {
-                            Text(text = "Products Screen")
+
                         }
                         composable<Destination.CartScreen> {
-                            Text(text = "Cart Screen")
+
                         }
                         composable<Destination.Notifications> {
-                            Text(text = "Notifications Screen")
+
                         }
                         composable<Destination.Categories> {
-                            Text(text = "Categories")
+
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))

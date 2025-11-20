@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,9 +42,7 @@ fun ProfileScreen(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val screenReady = state.screenReady
-    val isFormValid = viewModel.isFormDataValid
+    val context = LocalContext.current
 
 
     ProfileScreenContent(
@@ -54,9 +54,14 @@ fun ProfileScreen(
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
             ProfileScreenCommand.NavigateToMainScreen -> onNavigateBack()
+
+            is ProfileScreenCommand.ShowToast -> {
+                Toast.makeText(context, command.message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,7 +133,7 @@ fun ProfileScreenContent(
                 onClick = { onEvent(ProfileScreenEvent.Submit) }
             )
 
-
+// https://youtu.be/wdMTyY_-a34?si=Oe4qqURqoouPGp-k&t=5074
         }
     }
 }

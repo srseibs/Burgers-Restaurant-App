@@ -8,6 +8,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -65,11 +66,15 @@ class ProfileViewModel(
             )
             when (requestState) {
                 is RequestState.Success -> {
-
+                    _commands.send(ProfileScreenCommand.ShowToast("Update successful"))
+                    delay(1000)
+                    _commands.send(ProfileScreenCommand.NavigateToMainScreen)
                 }
 
                 is RequestState.Error -> {
-//                    _commands.send(ProfileScreenCommand(requestState.message))
+                    _commands.send(
+                        ProfileScreenCommand.ShowToast("Update failed : ${requestState.message}")
+                    )
                 }
 
                 else -> Unit
