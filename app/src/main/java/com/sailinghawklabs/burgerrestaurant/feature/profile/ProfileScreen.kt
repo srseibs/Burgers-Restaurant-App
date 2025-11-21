@@ -128,8 +128,8 @@ fun ProfileScreenContent(
             PrimaryButton(
                 buttonType = ButtonType.PRIMARY,
                 enabled = isFormValid(),
-                text = "Primary",
-                icon = painterResource(id = R.drawable.check),
+                text = "Update",
+                icon = painterResource(id = R.drawable.user),
                 onClick = { onEvent(ProfileScreenEvent.Submit) }
             )
 

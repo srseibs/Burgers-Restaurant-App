@@ -7,6 +7,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
@@ -46,23 +47,34 @@ class CustomerRepoImpl() : CustomerRepository {
             val userId = getCurrentUserId()
             if (userId != null) {
                 val database = Firebase.firestore
-                database.collection("customer").document(userId).snapshots()
+                database.collection("customer")
+                    .document(userId)
+                    .snapshots()
                     .collect { documentSnapshot ->
                         if (documentSnapshot.exists()) {
                             val postalCode =
-                                (documentSnapshot.data?.get("postalCode") as? Long)?.toInt()
-                            val phoneNumberMap =
-                                documentSnapshot.data?.get("phoneNumber") as? Map<*, *>
-                            val phoneNumber = phoneNumberMap?.let {
-                                val dialCode = (it["CountryCode"] as? Long)?.toInt()
-                                val number = it["Number"] as? String
+                                (documentSnapshot.get("postalCode") as? Long)?.toInt()
 
-                                if (dialCode != null && number != null) {
-                                    PhoneNumber(dialCode, number)
-                                } else {
-                                    null
+                            val phoneNumber =
+                                (documentSnapshot.get("phoneNumber") as? Map<*, *>)?.let { map ->
+                                    PhoneNumber(
+                                        dialCode = (map["CountryCode"] as? Long)?.toInt()
+                                            ?: return@let null,
+                                        number = map["Number"] as? String ?: return@let null
+                                    )
                                 }
+
+                            val country =
+                                (documentSnapshot.get("country") as? Map<*, *>)?.let { map ->
+                                    Country(
+                                        name = map["name"] as? String ?: return@let null,
+                                        code = map["code"] as? String ?: return@let null,
+                                        dialCode = (map["dialCode"] as? Long)?.toInt()
+                                            ?: return@let null,
+                                        flagUrl = map["flagUrl"] as? String
+                                    )
                             }
+
                             val customer = Customer(
                                 id = documentSnapshot.id,
                                 firstName = documentSnapshot.get("firstName") as String,
@@ -71,9 +83,9 @@ class CustomerRepoImpl() : CustomerRepository {
                                 city = documentSnapshot.get("city") as? String?,
                                 address = documentSnapshot.get("address") as String?,
                                 profilePictureUrl = documentSnapshot.get("photoUrl") as String?,
-
                                 postalCode = postalCode,
-                                phoneNumber = phoneNumber
+                                phoneNumber = phoneNumber,
+                                country = country
                             )
                             send(RequestState.Success(customer))
                         } else {
@@ -106,6 +118,15 @@ class CustomerRepoImpl() : CustomerRepository {
                             "Number" to it.number
                         )
                     }
+
+                    val countryMap = customer.country?.let {
+                        mapOf(
+                            "name" to it.name,
+                            "code" to it.code,
+                            "dialCode" to it.dialCode,
+                            "flagUrl" to it.flagUrl
+                        )
+                    }
                     customerCollection
                         .document(customer.id)
                         .update(
@@ -115,7 +136,8 @@ class CustomerRepoImpl() : CustomerRepository {
                                 "city" to customer.city,
                                 "postalCode" to customer.postalCode,
                                 "address" to customer.address,
-                                "phoneNumber" to phoneNumberMap
+                                "phoneNumber" to phoneNumberMap,
+                                "country" to countryMap
                             )
                         )
                         .await()
