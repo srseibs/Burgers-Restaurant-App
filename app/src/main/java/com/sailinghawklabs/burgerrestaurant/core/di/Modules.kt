@@ -3,13 +3,17 @@ package com.sailinghawklabs.burgerrestaurant.core.di
 import com.google.firebase.auth.FirebaseAuth
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepositoryImpl
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.remote.RestCountriesApi
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashViewModel
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -20,10 +24,16 @@ import java.util.concurrent.TimeUnit
 val appModule = module {
 
     single {
+        HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.HEADERS)
+    }
+
+    single {
         OkHttpClient.Builder()
             .connectTimeout(timeout = 30, unit = TimeUnit.SECONDS)
             .readTimeout(timeout = 30, unit = TimeUnit.SECONDS)
             .writeTimeout(timeout = 30, unit = TimeUnit.SECONDS)
+            .addInterceptor(interceptor = get<HttpLoggingInterceptor>())
             .build()
     }
 
@@ -33,15 +43,17 @@ val appModule = module {
             .client(get())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+            .create(RestCountriesApi::class.java)
     }
 
     single<FirebaseAuth> { FirebaseAuth.getInstance() }
     single<CustomerRepository> { CustomerRepoImpl() }
+    single<CountryRepository> { CountryRepositoryImpl(restCountriesApi = get()) }
 
     viewModel { AuthViewModel(customerRepository = get(), googleAuthUiClient = get()) }
     viewModel { SplashViewModel(googleAuthUiClient = get()) }
     viewModel { HomeViewModel(customerRepository = get()) }
-    viewModel { ProfileViewModel(customerRepository = get()) }
+    viewModel { ProfileViewModel(customerRepository = get(), countryRepository = get()) }
 
     single {
         GoogleUiClient(

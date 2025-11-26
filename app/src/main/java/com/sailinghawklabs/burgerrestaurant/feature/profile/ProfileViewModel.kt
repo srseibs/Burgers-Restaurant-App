@@ -2,6 +2,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
@@ -20,12 +21,14 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val customerRepository: CustomerRepository,
+    private val countryRepository: CountryRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
     val state = _state
         .onStart {
             getCustomer()
+            loadCountries()
         }
         .stateIn(
             scope = viewModelScope,
@@ -82,8 +85,33 @@ class ProfileViewModel(
         }
     }
 
-    private fun getCustomer() {
+    // https://youtu.be/UXEy34r-iYg?si=8JvkuvspVWU3aUad&t=2110
+    private suspend fun loadCountries() = viewModelScope.launch {
+        countryRepository.fetchCountries()
+            .onStart { _state.update { it.copy(countries = RequestState.Loading) } }
+            .collect { countryRequestState ->
+                if (countryRequestState.isSuccess()) {
+                    val countries = countryRequestState.getSuccessData()
+                    val dialCode = _state.value.phoneNumber?.dialCode?.let { dialCode ->
+                        countries.firstOrNull() { it.dialCode == dialCode }?.let { match ->
+                            _state.update {
+                                it.copy(country = match)
+                            }
+                        }
+                    }
+                    _state.update {
+                        it.copy(
+                            countries = countryRequestState
+                        )
+                    }
+                }
+            }
+    }
+
+    private suspend fun getCustomer() {
         viewModelScope.launch {
+
+            _state.update { it.copy(screenReady = RequestState.Loading) }
             customerRepository.readCustomerFlow().collectLatest { requestState ->
                 when {
                     requestState.isSuccess() -> {
