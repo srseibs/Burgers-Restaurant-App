@@ -1,6 +1,7 @@
 package com.sailinghawklabs.burgerrestaurant.core.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
@@ -12,13 +13,14 @@ import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashViewModel
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 val appModule = module {
@@ -38,10 +40,11 @@ val appModule = module {
     }
 
     single {
+        val json = Json { ignoreUnknownKeys = true }
         Retrofit.Builder()
             .baseUrl("https://restcountries.com/")
             .client(get())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(RestCountriesApi::class.java)
     }

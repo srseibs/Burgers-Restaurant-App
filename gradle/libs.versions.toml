@@ -25,6 +25,7 @@ animation = "1.9.5"
 retrofit = "3.0.0"
 retrofitOkhttp = "5.3.2"
 jakeSerialization = "1.0.0"
+kotlinxSerializationJson = "1.8.0"
 
 
 [libraries]
@@ -59,6 +60,7 @@ koin-android-compose-nav = { module = "io.insert-koin:koin-androidx-compose-navi
 
 # Coroutines
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -110,5 +112,3 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
-
-
