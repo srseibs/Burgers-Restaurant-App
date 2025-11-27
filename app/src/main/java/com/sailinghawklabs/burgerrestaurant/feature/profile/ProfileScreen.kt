@@ -25,9 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ButtonType
+import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
+import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileForm
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
@@ -106,34 +109,56 @@ fun ProfileScreenContent(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .padding(horizontal = 24.dp)
-                .imePadding()
+                .imePadding(),
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
         ) {
-            ProfileForm(
-                modifier = Modifier.wrapContentHeight(),
-                firstName = state.firstName,
-                onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
-                lastName = state.lastName,
-                onLastNameChange = { onEvent(ProfileScreenEvent.LastNameChanged(it)) },
-                email = state.email,
-                city = state.city,
-                onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
-                postalCode = state.postalCode,
-                address = state.address,
-                onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
-                onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
-                phoneNumber = state.phoneNumber,
-                onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            PrimaryButton(
-                buttonType = ButtonType.PRIMARY,
-                enabled = isFormValid(),
-                text = "Update",
-                icon = painterResource(id = R.drawable.user),
-                onClick = { onEvent(ProfileScreenEvent.Submit) }
-            )
+            when (state.screenReady) {
+                is RequestState.Loading -> {
+                    LoadingCard(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
-// https://youtu.be/wdMTyY_-a34?si=Oe4qqURqoouPGp-k&t=5074
+
+                is RequestState.Error -> {
+                    InfoCard(
+                        modifier = Modifier.fillMaxSize(),
+                        image = R.drawable.error_blue,
+                        title = "Error",
+                        subtitle = state.screenReady.getErrorMessage()
+                    )
+                }
+
+
+                is RequestState.Success -> {
+                    ProfileForm(
+                        modifier = Modifier.wrapContentHeight(),
+                        firstName = state.firstName,
+                        onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
+                        lastName = state.lastName,
+                        onLastNameChange = { onEvent(ProfileScreenEvent.LastNameChanged(it)) },
+                        email = state.email,
+                        city = state.city,
+                        onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
+                        postalCode = state.postalCode,
+                        address = state.address,
+                        onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
+                        onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
+                        phoneNumber = state.phoneNumber,
+                        onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    PrimaryButton(
+                        buttonType = ButtonType.PRIMARY,
+                        enabled = isFormValid(),
+                        text = "Update",
+                        icon = painterResource(id = R.drawable.user),
+                        onClick = { onEvent(ProfileScreenEvent.Submit) }
+                    )
+                }
+
+                RequestState.Idle -> {}
+            }
         }
     }
 }

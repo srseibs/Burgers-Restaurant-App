@@ -21,9 +21,9 @@ fun LoadingCard(
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(48.dp),
             color = IconSecondary,
-            strokeWidth = 2.dp
+            strokeWidth = 4.dp
         )
     }
 }
