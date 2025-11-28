@@ -11,7 +11,6 @@ import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.tasks.await
@@ -45,7 +44,6 @@ class CustomerRepoImpl() : CustomerRepository {
 
     override suspend fun readCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
         try {
-            delay(5000)
             val userId = getCurrentUserId()
             if (userId != null) {
                 val database = Firebase.firestore

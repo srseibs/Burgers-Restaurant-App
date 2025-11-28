@@ -1,6 +1,7 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ButtonType
 import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
@@ -131,6 +133,20 @@ fun ProfileScreenContent(
 
 
                 is RequestState.Success -> {
+                    if (state.profilePictureUrl != null) {
+                        AsyncImage(
+                            model = "https://yt3.ggpht.com/T-7NRB3hM324iMkEudXqxlcFu2AI_pyLVfR_RMiinQf81ACspB0bdFvwZMlG-9Q5UIBxqINe=s88-c-k-c0x00ffffff-no-rj",
+                            contentDescription = "Profile picture",
+                            modifier = Modifier
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.user),
+                            contentDescription = "Profile picture",
+                            modifier = Modifier
+                        )
+                    }
+                    Text("Country: ${state.country?.name}")
                     ProfileForm(
                         modifier = Modifier.wrapContentHeight(),
                         firstName = state.firstName,

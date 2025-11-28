@@ -16,7 +16,7 @@
       <SelectionState runConfigName="CustomDrawerPrev">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Preview">
+      <SelectionState runConfigName="CountryPickerDialogPrev">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

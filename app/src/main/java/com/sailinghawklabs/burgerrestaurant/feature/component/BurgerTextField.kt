@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +44,7 @@ fun BurgerTextField(
     label: String? = null,
     enabled: Boolean = true,
     errorMessage: String? = null,
+    showError: Boolean = true,
     expanded: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
 ) {
@@ -51,7 +53,7 @@ fun BurgerTextField(
         {
             if (errorMessage != null) {
                 Text(text = errorMessage.toString())
-            } else if (value.isNotEmpty()) {
+            } else if (value.isNotEmpty() && showError) {
                 Icon(
                     painter = painterResource(R.drawable.check),
                     contentDescription = null,
@@ -65,6 +67,7 @@ fun BurgerTextField(
 
 
     val isError = errorMessage == null
+    val textFieldState = TextFieldState(value)
 
     OutlinedTextField(
         value = value,

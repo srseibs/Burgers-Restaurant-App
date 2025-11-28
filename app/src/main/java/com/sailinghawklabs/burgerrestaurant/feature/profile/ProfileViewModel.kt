@@ -85,14 +85,13 @@ class ProfileViewModel(
         }
     }
 
-    // https://youtu.be/UXEy34r-iYg?si=8JvkuvspVWU3aUad&t=2110
     private suspend fun loadCountries() = viewModelScope.launch {
         countryRepository.fetchCountries()
             .onStart { _state.update { it.copy(countries = RequestState.Loading) } }
             .collect { countryRequestState ->
                 if (countryRequestState.isSuccess()) {
                     val countries = countryRequestState.getSuccessData()
-                    val dialCode = _state.value.phoneNumber?.dialCode?.let { dialCode ->
+                    _state.value.phoneNumber?.dialCode?.let { dialCode ->
                         countries.firstOrNull() { it.dialCode == dialCode }?.let { match ->
                             _state.update {
                                 it.copy(country = match)
@@ -101,12 +100,14 @@ class ProfileViewModel(
                     }
                     _state.update {
                         it.copy(
-                            countries = countryRequestState
+                            countries = countryRequestState,
+                            country = countryRequestState.getSuccessData().firstOrNull()
                         )
                     }
                 }
             }
     }
+
 
     private suspend fun getCustomer() {
         viewModelScope.launch {
