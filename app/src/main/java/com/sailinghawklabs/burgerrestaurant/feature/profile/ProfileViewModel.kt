@@ -201,7 +201,21 @@ class ProfileViewModel(
                     updateCustomer()
                 }
             }
+
+            is ProfileScreenEvent.CountryChanged -> {
+                _state.update {
+                    it.copy(
+                        country = event.country,
+                        phoneNumber =
+                            _state.value.phoneNumber?.copy(
+                                dialCode = event.country.dialCode
+                            ) ?: PhoneNumber(
+                                dialCode = event.country.dialCode,
+                                number = _state.value.phoneNumber?.number ?: ""
+                            )
+                    )
+                }
+            }
         }
     }
-
 }

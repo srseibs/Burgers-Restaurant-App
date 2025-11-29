@@ -5,10 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +17,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,6 +34,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
+import com.sailinghawklabs.burgerrestaurant.feature.home.component.dialog.CountryPickerDialog
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileForm
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -75,6 +79,8 @@ fun ProfileScreenContent(
     isFormValid: () -> Boolean,
     onEvent: (ProfileScreenEvent) -> Unit,
 ) {
+    val countriesState = state.countries
+
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -105,22 +111,35 @@ fun ProfileScreenContent(
         }
 
     ) { scaffoldPadding ->
+        var selectCountryDialogOpen by remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .padding(horizontal = 24.dp)
-                .imePadding(),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+//                .imePadding()
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (selectCountryDialogOpen && countriesState.isSuccess()) {
+                CountryPickerDialog(
+                    countries = countriesState.getSuccessData(),
+                    selectedCountry = state.country,
+                    onCountrySelected = {
+                        onEvent(ProfileScreenEvent.CountryChanged(it))
+                        selectCountryDialogOpen = false
+                    },
+                    onDismiss = { selectCountryDialogOpen = false }
+                )
+            }
+
             when (state.screenReady) {
                 is RequestState.Loading -> {
                     LoadingCard(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-
 
                 is RequestState.Error -> {
                     InfoCard(
@@ -130,7 +149,6 @@ fun ProfileScreenContent(
                         subtitle = state.screenReady.getErrorMessage()
                     )
                 }
-
 
                 is RequestState.Success -> {
                     if (state.profilePictureUrl != null) {
@@ -146,9 +164,8 @@ fun ProfileScreenContent(
                             modifier = Modifier
                         )
                     }
-                    Text("Country: ${state.country?.name}")
                     ProfileForm(
-                        modifier = Modifier.wrapContentHeight(),
+                        modifier = Modifier.fillMaxWidth(),
                         firstName = state.firstName,
                         onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
                         lastName = state.lastName,
@@ -156,6 +173,10 @@ fun ProfileScreenContent(
                         email = state.email,
                         city = state.city,
                         onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
+                        country = state.country,
+                        onCountrySelect = {
+                            selectCountryDialogOpen = !selectCountryDialogOpen
+                        },
                         postalCode = state.postalCode,
                         address = state.address,
                         onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
@@ -184,7 +205,10 @@ fun ProfileScreenContent(
 private fun Preview() {
     BurgerRestaurantTheme {
         ProfileScreenContent(
-            state = ProfileState(),
+            state = ProfileState(
+                screenReady = RequestState.Success(Unit),
+                countries = RequestState.Success(emptyList())
+            ),
             isFormValid = { true },
             onEvent = {}
         )

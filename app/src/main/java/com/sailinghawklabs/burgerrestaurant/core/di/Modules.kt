@@ -46,10 +46,11 @@ val appModule = module {
             .client(get())
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
-            .create(RestCountriesApi::class.java)
     }
 
     single<FirebaseAuth> { FirebaseAuth.getInstance() }
+    single<RestCountriesApi> { get<Retrofit>().create(RestCountriesApi::class.java) }
+
     single<CustomerRepository> { CustomerRepoImpl() }
     single<CountryRepository> { CountryRepositoryImpl(restCountriesApi = get()) }
 

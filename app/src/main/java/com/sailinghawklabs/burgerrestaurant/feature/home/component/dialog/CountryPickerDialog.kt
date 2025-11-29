@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -122,7 +123,7 @@ fun CountryPickerDialog(
         text = {
             Column(
                 modifier = Modifier
-                    .height(160.dp)
+                    .fillMaxHeight(0.8f)
                     .fillMaxWidth()
             ) {
                 BurgerTextField(
@@ -136,7 +137,7 @@ fun CountryPickerDialog(
                 if (filteredCountries.isNotEmpty()) {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         items(
                             items = filteredCountries,
@@ -179,11 +180,11 @@ fun CountryPickerDetail(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onCountrySelected() }
             .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             modifier = Modifier

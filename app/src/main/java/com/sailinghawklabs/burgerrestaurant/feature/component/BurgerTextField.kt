@@ -3,12 +3,12 @@ package com.sailinghawklabs.burgerrestaurant.feature.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -51,23 +51,27 @@ fun BurgerTextField(
     val cornerSize = 8.dp
     val supportingText: (@Composable () -> Unit) =
         {
-            if (errorMessage != null) {
-                Text(text = errorMessage.toString())
-            } else if (value.isNotEmpty() && showError) {
-                Icon(
-                    painter = painterResource(R.drawable.check),
-                    contentDescription = null,
-                    tint = Color(0xFF26884E),
-                    modifier = Modifier.size(16.dp)
-                )
-            } else {
-                Text("")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                if (errorMessage != null) {
+                    Text(text = errorMessage)
+                } else if (value.isNotEmpty() && showError) {
+                    Icon(
+                        painter = painterResource(R.drawable.check),
+                        contentDescription = null,
+                        tint = Color(0xFF26884E),
+                        modifier = Modifier.size(16.dp)
+                    )
+                } else {
+                    Text("")
+                }
             }
         }
 
 
     val isError = errorMessage == null
-    val textFieldState = TextFieldState(value)
 
     OutlinedTextField(
         value = value,
@@ -87,7 +91,7 @@ fun BurgerTextField(
         singleLine = !expanded,
         shape = RoundedCornerShape(cornerSize),
         colors = OutlinedTextFieldDefaults.colors(
-// containers
+            // container colors
             focusedContainerColor = SurfaceLight,
             unfocusedContainerColor = SurfaceLight,
             disabledContainerColor = SurfaceLight,
@@ -100,12 +104,13 @@ fun BurgerTextField(
             focusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
             unfocusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
 
-//border colors
+            //border colors
             focusedBorderColor = SurfaceSecondary,
             unfocusedBorderColor = SurfaceSecondary,
             disabledBorderColor = SurfaceSecondary,
             errorBorderColor = BorderError,
 
+            // label colors
             focusedLabelColor = TextSecondary,
             unfocusedLabelColor = TextSecondary,
             disabledLabelColor = TextSecondary,
@@ -125,7 +130,7 @@ fun BurgerTextField(
 private fun BurgerTestFieldPrev() {
     BurgerRestaurantTheme {
 
-        var first by rememberSaveable { mutableStateOf("Mike") }
+        var first by rememberSaveable { mutableStateOf("Mi") }
         var last by rememberSaveable { mutableStateOf("Seibel") }
         var city by rememberSaveable { mutableStateOf("San Ramon") }
 
