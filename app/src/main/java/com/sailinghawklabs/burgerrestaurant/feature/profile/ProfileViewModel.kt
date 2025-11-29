@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
@@ -27,8 +28,8 @@ class ProfileViewModel(
     private val _state = MutableStateFlow(ProfileState())
     val state = _state
         .onStart {
-            getCustomer()
             loadCountries()
+            getCustomer()
         }
         .stateIn(
             scope = viewModelScope,
@@ -55,6 +56,14 @@ class ProfileViewModel(
     private fun updateCustomer() {
         viewModelScope.launch {
             val currentState = _state.value // Create a stable snapshot of the state
+            val persistedCountry = currentState.country?.let {
+                Country(
+                    name = it.name,
+                    code = it.code,
+                    dialCode = it.dialCode,
+                    flagUrl = it.flagUrl
+                )
+            }
             val requestState = customerRepository.updateCustomer(
                 customer = Customer(
                     id = currentState.id,
@@ -64,7 +73,8 @@ class ProfileViewModel(
                     address = currentState.address,
                     postalCode = currentState.postalCode,
                     email = currentState.email,
-                    phoneNumber = currentState.phoneNumber
+                    phoneNumber = currentState.phoneNumber,
+                    country = persistedCountry
                 )
             )
             when (requestState) {
@@ -99,10 +109,7 @@ class ProfileViewModel(
                         }
                     }
                     _state.update {
-                        it.copy(
-                            countries = countryRequestState,
-                            country = countryRequestState.getSuccessData().firstOrNull()
-                        )
+                        it.copy(countries = countryRequestState)
                     }
                 }
             }
@@ -113,11 +120,29 @@ class ProfileViewModel(
         viewModelScope.launch {
 
             _state.update { it.copy(screenReady = RequestState.Loading) }
+
             customerRepository.readCustomerFlow().collectLatest { requestState ->
                 when {
                     requestState.isSuccess() -> {
                         val fetchedData = requestState.getSuccessData()
                         val dialCode = fetchedData.phoneNumber?.dialCode
+
+
+                        val countryRequest = _state.value.countries
+                        val countryList = if (countryRequest.isSuccess()) {
+                            countryRequest.getSuccessData()
+                        } else {
+                            emptyList()
+                        }
+
+                        val mappedCountry =
+                            if (dialCode != null && countryList.isNotEmpty()) {
+                                countryList.firstOrNull { it.dialCode == dialCode }
+                            } else
+                                _state.value.country
+
+                        println("countryList.size: ${countryList.size}")
+                        println("mapped country: $mappedCountry")
 
                         _state.update {
                             it.copy(
@@ -127,6 +152,7 @@ class ProfileViewModel(
                                 city = fetchedData.city,
                                 email = fetchedData.email,
                                 phoneNumber = fetchedData.phoneNumber,
+                                country = mappedCountry,
                                 postalCode = fetchedData.postalCode,
                                 address = fetchedData.address,
                                 profilePictureUrl = fetchedData.profilePictureUrl,
