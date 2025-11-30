@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -161,7 +162,7 @@ fun ProfileScreenContent(
                         Image(
                             painter = painterResource(id = R.drawable.user),
                             contentDescription = "Profile picture",
-                            modifier = Modifier
+                            modifier = Modifier.size(84.dp)
                         )
                     }
                     ProfileForm(
@@ -200,7 +201,7 @@ fun ProfileScreenContent(
     }
 }
 
-@Preview
+@Preview(showSystemUi = true)
 @Composable
 private fun Preview() {
     BurgerRestaurantTheme {

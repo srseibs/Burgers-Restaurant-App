@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.core.data.domain
 
+import android.net.Uri
 import com.google.firebase.auth.FirebaseUser
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
@@ -14,6 +15,13 @@ interface CustomerRepository {
     suspend fun readCustomerFlow(): Flow<RequestState<Customer>>
 
     suspend fun updateCustomer(customer: Customer): RequestState<Unit>
+
+    suspend fun updateProfilePictureUrl(url: String): RequestState<Unit>
+
+    suspend fun updateProfilePhoto(
+        localUrl: Uri,
+        onProgress: (percent: Float) -> Unit
+    ): RequestState<String>
 
     suspend fun signOut(): RequestState<Unit>
 

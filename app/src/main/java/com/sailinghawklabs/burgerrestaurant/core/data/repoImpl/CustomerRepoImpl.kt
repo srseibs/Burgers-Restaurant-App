@@ -1,11 +1,16 @@
 package com.sailinghawklabs.burgerrestaurant.core.data.repoImpl
 
+import android.net.Uri
+import androidx.core.net.toUri
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storageMetadata
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
@@ -73,7 +78,7 @@ class CustomerRepoImpl() : CustomerRepository {
                                             ?: return@let null,
                                         flagUrl = map["flagUrl"] as? String
                                     )
-                            }
+                                }
 
                             val customer = Customer(
                                 id = documentSnapshot.id,
@@ -161,4 +166,60 @@ class CustomerRepoImpl() : CustomerRepository {
             RequestState.Error("Error while signing out: ${e.message}")
         }
     }
+
+    override suspend fun updateProfilePictureUrl(url: String): RequestState<Unit> = try {
+        val uid = getCurrentUserId() ?: return RequestState.Error("User not authenticated")
+
+        Firebase.firestore.collection("customer")
+            .document(uid)
+            .update("photoProfileUrl", url)
+            .await()
+
+        try {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                val request = userProfileChangeRequest { photoUri = url.toUri() }
+                user.updateProfile(request).await()
+                user.reload().await()
+            }
+        } catch (e: Exception) {
+            RequestState.Error("Error updating firebase profile photo URL: ${e.message}")
+        }
+
+        RequestState.Success(Unit)
+
+    } catch (e: Exception) {
+        RequestState.Error("Error updating firestore profile picture URL: ${e.message}")
+    }
+
+
+    override suspend fun updateProfilePhoto(
+        localUrl: Uri,
+        onProgress: (percent: Float) -> Unit
+    ): RequestState<String> = try {
+        val uid = getCurrentUserId() ?: return RequestState.Error("User not authenticated")
+        val storageRef = FirebaseStorage.getInstance().reference
+        val now = System.currentTimeMillis()
+        val ref = storageRef.child("user/$uid/profile/pic_$now")
+        val metadate = storageMetadata {
+            contentType = "image/jpeg"
+            setCustomMetadata("uploadedBy", uid)
+        }
+        val task = storageRef.putFile(localUrl, metadate)
+        task
+            .addOnProgressListener { snapshot ->
+                val progressPct = if (snapshot.totalByteCount > 0) {
+                    snapshot.bytesTransferred.toFloat() / snapshot.totalByteCount.toFloat()
+                } else {
+                    0f
+                }.coerceIn(0f, 100f)
+                onProgress(progressPct)
+            }
+            .await()
+        val url = ref.downloadUrl.await().toString()
+        RequestState.Success(url)
+    } catch (e: Exception) {
+        RequestState.Error("Error uploading profile photo: ${e.message}")
+    }
+
 }
