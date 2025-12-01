@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -168,48 +170,72 @@ fun ProfileScreenContent(
                 }
 
                 is RequestState.Success -> {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ProfilePhotoEditor(
-                        photoUrl = resolvedPhotoUrl,
-                        isUploading = state.photoIsUploading,
-                        progress = state.photoUploadProgress,
-                        onPickClick = {
-                            photoPicker.launch(
-                                input = PickVisualMediaRequest(
-                                    ActivityResultContracts.PickVisualMedia.ImageOnly
-                                )
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(state = rememberScrollState())
+                                .fillMaxWidth()
+                                .weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ProfilePhotoEditor(
+                                photoUrl = resolvedPhotoUrl,
+                                isUploading = state.photoIsUploading,
+                                progress = state.photoUploadProgress,
+                                onPickClick = {
+                                    photoPicker.launch(
+                                        input = PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                                        )
+                                    )
+                                }
                             )
+                            ProfileForm(
+                                modifier = Modifier.fillMaxWidth(),
+                                firstName = state.firstName,
+                                onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
+                                lastName = state.lastName,
+                                onLastNameChange = { onEvent(ProfileScreenEvent.LastNameChanged(it)) },
+                                email = state.email,
+                                city = state.city,
+                                onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
+                                country = state.country,
+                                onCountrySelect = {
+                                    selectCountryDialogOpen = !selectCountryDialogOpen
+                                },
+                                postalCode = state.postalCode,
+                                address = state.address,
+                                onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
+                                onPostalCodeChange = {
+                                    onEvent(
+                                        ProfileScreenEvent.PostalCodeChanged(
+                                            it
+                                        )
+                                    )
+                                },
+                                phoneNumber = state.phoneNumber,
+                                onPhoneNumberChange = {
+                                    onEvent(
+                                        ProfileScreenEvent.PhoneNumberChanged(
+                                            it
+                                        )
+                                    )
+                                },
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
-                    )
 
-                    ProfileForm(
-                        modifier = Modifier.fillMaxWidth(),
-                        firstName = state.firstName,
-                        onFirstNameChange = { onEvent(ProfileScreenEvent.FirstNameChanged(it)) },
-                        lastName = state.lastName,
-                        onLastNameChange = { onEvent(ProfileScreenEvent.LastNameChanged(it)) },
-                        email = state.email,
-                        city = state.city,
-                        onCityChange = { onEvent(ProfileScreenEvent.CityChanged(it)) },
-                        country = state.country,
-                        onCountrySelect = {
-                            selectCountryDialogOpen = !selectCountryDialogOpen
-                        },
-                        postalCode = state.postalCode,
-                        address = state.address,
-                        onAddressChange = { onEvent(ProfileScreenEvent.AddressChanged(it)) },
-                        onPostalCodeChange = { onEvent(ProfileScreenEvent.PostalCodeChanged(it)) },
-                        phoneNumber = state.phoneNumber,
-                        onPhoneNumberChange = { onEvent(ProfileScreenEvent.PhoneNumberChanged(it)) },
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    PrimaryButton(
-                        buttonType = ButtonType.PRIMARY,
-                        enabled = isFormValid(),
-                        text = "Update",
-                        icon = painterResource(id = R.drawable.user),
-                        onClick = { onEvent(ProfileScreenEvent.Submit) }
-                    )
+                        PrimaryButton(
+                            buttonType = ButtonType.PRIMARY,
+                            enabled = isFormValid(),
+                            text = "Update",
+                            icon = painterResource(id = R.drawable.user),
+                            onClick = { onEvent(ProfileScreenEvent.Submit) }
+                        )
+                    }
                 }
 
                 RequestState.Idle -> {}
