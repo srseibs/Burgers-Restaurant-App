@@ -1,14 +1,15 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
+import com.google.firebase.auth.FirebaseAuth
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ButtonType
 import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
@@ -37,6 +38,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.feature.home.component.dialog.CountryPickerDialog
 import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileForm
+import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfilePhotoEditor
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -53,7 +55,6 @@ fun ProfileScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
 
     ProfileScreenContent(
         state = state,
@@ -81,6 +82,21 @@ fun ProfileScreenContent(
     onEvent: (ProfileScreenEvent) -> Unit,
 ) {
     val countriesState = state.countries
+
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        println("photoPicker uri selected: $uri")
+        if (uri != null) {
+            onEvent(ProfileScreenEvent.PhotoPicked(uri))
+        }
+    }
+
+    val authPhotoUrl = remember {
+        FirebaseAuth.getInstance().currentUser?.photoUrl?.toString()
+    }
+    val resolvedPhotoUrl = state.profilePictureUrl?.takeUnless { it.isBlank() } ?: authPhotoUrl
+
 
     Scaffold(
         containerColor = Surface,
@@ -152,19 +168,20 @@ fun ProfileScreenContent(
                 }
 
                 is RequestState.Success -> {
-                    if (state.profilePictureUrl != null) {
-                        AsyncImage(
-                            model = "https://yt3.ggpht.com/T-7NRB3hM324iMkEudXqxlcFu2AI_pyLVfR_RMiinQf81ACspB0bdFvwZMlG-9Q5UIBxqINe=s88-c-k-c0x00ffffff-no-rj",
-                            contentDescription = "Profile picture",
-                            modifier = Modifier
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.user),
-                            contentDescription = "Profile picture",
-                            modifier = Modifier.size(84.dp)
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfilePhotoEditor(
+                        photoUrl = resolvedPhotoUrl,
+                        isUploading = state.photoIsUploading,
+                        progress = state.photoUploadProgress,
+                        onPickClick = {
+                            photoPicker.launch(
+                                input = PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        }
+                    )
+
                     ProfileForm(
                         modifier = Modifier.fillMaxWidth(),
                         firstName = state.firstName,

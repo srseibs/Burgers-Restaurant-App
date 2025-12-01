@@ -16,6 +16,8 @@ data class ProfileState(
     val country: Country? = null,
     val postalCode: Int? = null,
     val phoneNumber: PhoneNumber? = null,
-    val profilePictureUrl: String? = null
+    val profilePictureUrl: String? = null,
+    val photoIsUploading: Boolean = false,
+    val photoUploadProgress: Float = 0f,
+    val photoUploadError: String? = null
 )
-

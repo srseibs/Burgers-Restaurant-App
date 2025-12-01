@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
@@ -26,26 +27,25 @@ class ProfileViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
-    val state = _state
-        .onStart {
-            loadCountries()
-            getCustomer()
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = ProfileState()
-        )
+    val state = _state.onStart {
+        loadCountries()
+        getCustomer()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = ProfileState()
+    )
 
     val isFormDataValid: Boolean
         get() {
             val state = _state.value
-            return FormValidators.validateFirstName(state.firstName) == null &&
-                    FormValidators.validateLastName(state.lastName) == null &&
-                    FormValidators.validateCity(state.city) == null &&
-                    FormValidators.validatePostalCode(state.postalCode) == null &&
-                    FormValidators.validateAddress(state.address) == null &&
-                    FormValidators.validatePhoneNumber(state.phoneNumber) == null
+            return FormValidators.validateFirstName(state.firstName) == null && FormValidators.validateLastName(
+                state.lastName
+            ) == null && FormValidators.validateCity(state.city) == null && FormValidators.validatePostalCode(
+                state.postalCode
+            ) == null && FormValidators.validateAddress(state.address) == null && FormValidators.validatePhoneNumber(
+                state.phoneNumber
+            ) == null
         }
 
 
@@ -58,10 +58,7 @@ class ProfileViewModel(
             val currentState = _state.value // Create a stable snapshot of the state
             val persistedCountry = currentState.country?.let {
                 Country(
-                    name = it.name,
-                    code = it.code,
-                    dialCode = it.dialCode,
-                    flagUrl = it.flagUrl
+                    name = it.name, code = it.code, dialCode = it.dialCode, flagUrl = it.flagUrl
                 )
             }
             val requestState = customerRepository.updateCustomer(
@@ -118,9 +115,7 @@ class ProfileViewModel(
 
     private suspend fun getCustomer() {
         viewModelScope.launch {
-
             _state.update { it.copy(screenReady = RequestState.Loading) }
-
             customerRepository.readCustomerFlow().collectLatest { requestState ->
                 when {
                     requestState.isSuccess() -> {
@@ -135,11 +130,9 @@ class ProfileViewModel(
                             emptyList()
                         }
 
-                        val mappedCountry =
-                            if (dialCode != null && countryList.isNotEmpty()) {
-                                countryList.firstOrNull { it.dialCode == dialCode }
-                            } else
-                                _state.value.country
+                        val mappedCountry = if (dialCode != null && countryList.isNotEmpty()) {
+                            countryList.firstOrNull { it.dialCode == dialCode }
+                        } else _state.value.country
 
                         println("countryList.size: ${countryList.size}")
                         println("mapped country: $mappedCountry")
@@ -177,6 +170,69 @@ class ProfileViewModel(
             }
         }
     }
+// https://youtu.be/sziVcSFNix0?si=-C-HiGas-Uv_xHBV&t=1326
+
+    // seems like a dumb name for the fun at this point; should be fun savePhotoUrl()
+    private fun pickAndUploadPhoto(localUrl: Uri) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    photoIsUploading = true,
+                    photoUploadProgress = 0f,
+                    photoUploadError = null
+                )
+            }
+            when (
+                val requestState =
+                    customerRepository.updateProfilePhoto(
+                        localUrl,
+                        onProgress = { percent ->
+                            _state.update { it.copy(photoUploadProgress = percent) }
+                        }
+                    )
+            ) {
+                is RequestState.Success -> {
+                    val url = requestState.data
+                    when (val uploadedUrlResult = customerRepository.updateProfilePictureUrl(url)) {
+                        is RequestState.Success -> {
+                            _state.update {
+                                it.copy(
+                                    photoIsUploading = false,
+                                    profilePictureUrl = url,
+                                    photoUploadProgress = 0f,
+                                    photoUploadError = null
+                                )
+                            }
+                        }
+
+                        is RequestState.Error -> {
+                            _state.update {
+                                it.copy(
+                                    photoIsUploading = false,
+                                    photoUploadProgress = 0f,
+                                    photoUploadError = uploadedUrlResult.message
+                                )
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
+
+                is RequestState.Error -> {
+                    _state.update {
+                        it.copy(
+                            photoIsUploading = false,
+                            photoUploadProgress = 0f,
+                            photoUploadError = requestState.message
+                        )
+                    }
+                }
+
+                else -> {}
+            }
+        }
+    }
 
 
     fun onEvent(event: ProfileScreenEvent) {
@@ -207,8 +263,7 @@ class ProfileViewModel(
                 _state.update {
                     it.copy(
                         phoneNumber = PhoneNumber(
-                            dialCode = it.phoneNumber?.dialCode ?: 0,
-                            number = event.text
+                            dialCode = it.phoneNumber?.dialCode ?: 0, number = event.text
                         )
                     )
                 }
@@ -231,16 +286,18 @@ class ProfileViewModel(
             is ProfileScreenEvent.CountryChanged -> {
                 _state.update {
                     it.copy(
-                        country = event.country,
-                        phoneNumber =
-                            _state.value.phoneNumber?.copy(
-                                dialCode = event.country.dialCode
-                            ) ?: PhoneNumber(
-                                dialCode = event.country.dialCode,
-                                number = _state.value.phoneNumber?.number ?: ""
-                            )
+                        country = event.country, phoneNumber = _state.value.phoneNumber?.copy(
+                            dialCode = event.country.dialCode
+                        ) ?: PhoneNumber(
+                            dialCode = event.country.dialCode,
+                            number = _state.value.phoneNumber?.number ?: ""
+                        )
                     )
                 }
+            }
+
+            is ProfileScreenEvent.PhotoPicked -> {
+                pickAndUploadPhoto(event.uri)
             }
         }
     }

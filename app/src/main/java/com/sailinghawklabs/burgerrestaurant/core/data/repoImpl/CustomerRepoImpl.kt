@@ -198,14 +198,14 @@ class CustomerRepoImpl() : CustomerRepository {
         onProgress: (percent: Float) -> Unit
     ): RequestState<String> = try {
         val uid = getCurrentUserId() ?: return RequestState.Error("User not authenticated")
-        val storageRef = FirebaseStorage.getInstance().reference
+        val rootStorageRef = FirebaseStorage.getInstance().reference
         val now = System.currentTimeMillis()
-        val ref = storageRef.child("user/$uid/profile/pic_$now")
+        val ref = rootStorageRef.child("user/$uid/profile/pic_{$now}.jpg")
         val metadate = storageMetadata {
             contentType = "image/jpeg"
             setCustomMetadata("uploadedBy", uid)
         }
-        val task = storageRef.putFile(localUrl, metadate)
+        val task = ref.putFile(localUrl, metadate)
         task
             .addOnProgressListener { snapshot ->
                 val progressPct = if (snapshot.totalByteCount > 0) {
@@ -221,5 +221,6 @@ class CustomerRepoImpl() : CustomerRepository {
     } catch (e: Exception) {
         RequestState.Error("Error uploading profile photo: ${e.message}")
     }
-
+// https://youtu.be/sziVcSFNix0?si=Qj3vXj46UrM2Nnf2&t=960
+    
 }

@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.profile
 
+import android.net.Uri
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 
 // Events to the ViewModel <---- from the Screen
@@ -14,5 +15,6 @@ sealed interface ProfileScreenEvent {
     data class PhoneNumberChanged(val text: String) : ProfileScreenEvent
     data class CountryChanged(val country: Country) : ProfileScreenEvent
     data object Submit : ProfileScreenEvent
+    data class PhotoPicked(val uri: Uri) : ProfileScreenEvent
 
 }
