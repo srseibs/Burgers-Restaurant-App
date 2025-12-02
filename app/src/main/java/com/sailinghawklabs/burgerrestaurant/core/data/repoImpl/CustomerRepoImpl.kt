@@ -18,6 +18,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.tasks.await
 
 class CustomerRepoImpl() : CustomerRepository {
@@ -55,30 +56,38 @@ class CustomerRepoImpl() : CustomerRepository {
                 database.collection("customer")
                     .document(userId)
                     .snapshots()
-                    .collect { documentSnapshot ->
+                    .collectLatest { documentSnapshot ->
                         if (documentSnapshot.exists()) {
-                            val postalCode =
-                                (documentSnapshot.get("postalCode") as? Long)?.toInt()
-
-                            val phoneNumber =
-                                (documentSnapshot.get("phoneNumber") as? Map<*, *>)?.let { map ->
-                                    PhoneNumber(
-                                        dialCode = (map["CountryCode"] as? Long)?.toInt()
-                                            ?: return@let null,
-                                        number = map["Number"] as? String ?: return@let null
-                                    )
+                            val postalCode = (documentSnapshot.get("postalCode") as? Long)?.toInt()
+                            val phoneNumberMap = documentSnapshot.get("phoneNumber") as? Map<*, *>
+                            val phoneNumber = phoneNumberMap?.let {
+                                val dialCode = (it["CountryCode"] as? Long)?.toInt()
+                                val number = it["Number"] as? String
+                                if (dialCode != null && number != null) {
+                                    PhoneNumber(dialCode, number)
+                                } else {
+                                    null
                                 }
+                            }
 
-                            val country =
-                                (documentSnapshot.get("country") as? Map<*, *>)?.let { map ->
+                            val countryMap = documentSnapshot.get("country") as? Map<*, *>
+
+                            val countryObject = countryMap?.let { map ->
+                                val name = map["name"] as? String
+                                val code = map["code"] as? String
+                                val dialCode = (map["dialCode"] as? Long)?.toInt()
+                                val flagUrl = map["flagUrl"] as? String
+
+                                if (name != null && code != null && dialCode != null && flagUrl != null)
                                     Country(
-                                        name = map["name"] as? String ?: return@let null,
-                                        code = map["code"] as? String ?: return@let null,
-                                        dialCode = (map["dialCode"] as? Long)?.toInt()
-                                            ?: return@let null,
-                                        flagUrl = map["flagUrl"] as? String
+                                        name = name,
+                                        code = code,
+                                        dialCode = dialCode,
+                                        flagUrl = flagUrl
                                     )
-                                }
+                                else
+                                    null
+                            }
 
                             val customer = Customer(
                                 id = documentSnapshot.id,
@@ -86,11 +95,12 @@ class CustomerRepoImpl() : CustomerRepository {
                                 lastName = documentSnapshot.get("lastName") as String,
                                 email = documentSnapshot.get("email") as String,
                                 city = documentSnapshot.get("city") as? String?,
-                                address = documentSnapshot.get("address") as String?,
-                                profilePictureUrl = documentSnapshot.get("photoUrl") as String?,
                                 postalCode = postalCode,
                                 phoneNumber = phoneNumber,
-                                country = country
+                                address = documentSnapshot.get("address") as String?,
+                                country = countryObject,
+                                profilePictureUrl = documentSnapshot.get("photoUrl") as String?
+
                             )
                             send(RequestState.Success(customer))
                         } else {
@@ -222,5 +232,5 @@ class CustomerRepoImpl() : CustomerRepository {
         RequestState.Error("Error uploading profile photo: ${e.message}")
     }
 // https://youtu.be/sziVcSFNix0?si=Qj3vXj46UrM2Nnf2&t=960
-    
+
 }
