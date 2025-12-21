@@ -4,33 +4,40 @@ import com.sailinghawklabs.burgerrestaurant.R
 
 object Resources {
     object Icon {
-        val Plus = R.drawable.plus
+        val BackArrow = R.drawable.back_arrow
+        val Bell = R.drawable.icon_belloutline
+        val Burger = R.drawable.burger
+        val Book = R.drawable.book
+        val Camera = R.drawable.camera
+        val Categories = R.drawable.grid
+        val Checkmark = R.drawable.check
+        val Close = R.drawable.close
+        val Delete = R.drawable.delete
+        val Desserts = R.drawable.cupcake
+        val Dollar = R.drawable.dollar
+        val Drinks = R.drawable.drinks
+        val Edit = R.drawable.edit
+        val Fries = R.drawable.french_fries
+        val Gift = R.drawable.icon_gift
+        val Heart = R.drawable.icon_heartoutline
+        val Home = R.drawable.home
+        val MapPin = R.drawable.map_pin
+        val Menu = R.drawable.menu
         val Minus = R.drawable.minus
+        val Nuggets = R.drawable.nuggets
+        val Person = R.drawable.user
+        val Plus = R.drawable.plus
+        val RightArrow = R.drawable.right_arrow
+        val Sauces = R.drawable.sauces
+        val Search = R.drawable.search
+        val ShoppingCart = R.drawable.shopping_cart
         val SignIn = R.drawable.log_in
         val SignOut = R.drawable.log_out
         val Unlock = R.drawable.unlock
-        val Search = R.drawable.search
-        val Person = R.drawable.user
-        val Checkmark = R.drawable.check
-        val Edit = R.drawable.edit
-        val Menu = R.drawable.menu
-        val BackArrow = R.drawable.back_arrow
-        val RightArrow = R.drawable.right_arrow
-        val Home = R.drawable.home
-        val ShoppingCart = R.drawable.shopping_cart
-        val Categories = R.drawable.grid
-        val Dollar = R.drawable.dollar
-        val MapPin = R.drawable.map_pin
-        val Close = R.drawable.close
-        val Book = R.drawable.book
         val VerticalMenu = R.drawable.vertical_menu
-        val Delete = R.drawable.delete
         val Warning = R.drawable.warning
         val Weight = R.drawable.weight
-        val Bell = R.drawable.icon_belloutline
-        val Gift = R.drawable.icon_gift
-        val Heart = R.drawable.icon_heartoutline
-        val Camera = R.drawable.camera
+        val Wraps = R.drawable.burrito
     }
     object Image {
         val ShoppingCart = R.drawable.shopping_cart_image
