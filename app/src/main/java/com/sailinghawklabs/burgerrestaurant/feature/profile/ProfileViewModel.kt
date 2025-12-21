@@ -28,10 +28,7 @@ class ProfileViewModel(
 
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.onStart {
-        viewModelScope.launch {
-            loadCountries()
             getCustomer()
-        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
@@ -116,62 +113,67 @@ class ProfileViewModel(
 
 
     private suspend fun getCustomer() {
-        _state.update { it.copy(screenReady = RequestState.Loading) }
-        customerRepository.readCustomerFlow().collectLatest { requestState ->
-            when {
-                requestState.isSuccess() -> {
-                    val fetchedData = requestState.getSuccessData()
-                    val countryCode = fetchedData.country?.code
+        viewModelScope.launch {
+            _state.update { it.copy(screenReady = RequestState.Loading) }
 
-                    println("customer countryCode: $countryCode")
-                    println("customer country name: ${fetchedData.country?.name}")
+            loadCountries()
+
+            customerRepository.readCustomerFlow().collectLatest { requestState ->
+                when {
+                    requestState.isSuccess() -> {
+                        val fetchedData = requestState.getSuccessData()
+                        val countryCode = fetchedData.country?.code
+
+                        println("customer countryCode: $countryCode")
+                        println("customer country name: ${fetchedData.country?.name}")
 
 
-                    val countryRequest = _state.value.countries
-                    val countryList = if (countryRequest.isSuccess()) {
-                        countryRequest.getSuccessData()
-                    } else {
-                        emptyList()
+                        val countryRequest = _state.value.countries
+                        val countryList = if (countryRequest.isSuccess()) {
+                            countryRequest.getSuccessData()
+                        } else {
+                            emptyList()
+                        }
+
+                        println("countryList.size: ${countryList.size}")
+
+                        val mappedCountry = if (countryCode != null && countryList.isNotEmpty()) {
+                            countryList.firstOrNull { it.code == countryCode }
+                        } else
+                            _state.value.country
+                        println("mapped country: $mappedCountry")
+
+                        _state.update {
+                            it.copy(
+                                id = fetchedData.id,
+                                firstName = fetchedData.firstName,
+                                lastName = fetchedData.lastName,
+                                city = fetchedData.city,
+                                email = fetchedData.email,
+                                phoneNumber = fetchedData.phoneNumber,
+                                country = mappedCountry,
+                                postalCode = fetchedData.postalCode,
+                                address = fetchedData.address,
+                                profilePictureUrl = fetchedData.profilePictureUrl,
+                                screenReady = RequestState.Success(Unit)
+
+                            )
+                        }
                     }
 
-                    println("countryList.size: ${countryList.size}")
+                    requestState.isError() -> {
+                        _state.update {
+                            it.copy(
+                                screenReady = RequestState.Error(requestState.getErrorMessage())
+                            )
+                        }
 
-                    val mappedCountry = if (countryCode != null && countryList.isNotEmpty()) {
-                        countryList.firstOrNull { it.code == countryCode }
-                    } else
-                        _state.value.country
-                    println("mapped country: $mappedCountry")
-
-                    _state.update {
-                        it.copy(
-                            id = fetchedData.id,
-                            firstName = fetchedData.firstName,
-                            lastName = fetchedData.lastName,
-                            city = fetchedData.city,
-                            email = fetchedData.email,
-                            phoneNumber = fetchedData.phoneNumber,
-                            country = mappedCountry,
-                            postalCode = fetchedData.postalCode,
-                            address = fetchedData.address,
-                            profilePictureUrl = fetchedData.profilePictureUrl,
-                            screenReady = RequestState.Success(Unit)
-
-                        )
                     }
+
+                    else -> Unit
                 }
 
-                requestState.isError() -> {
-                    _state.update {
-                        it.copy(
-                            screenReady = RequestState.Error(requestState.getErrorMessage())
-                        )
-                    }
-
-                }
-
-                else -> Unit
             }
-
         }
     }
 // https://youtu.be/sziVcSFNix0?si=-C-HiGas-Uv_xHBV&t=1326
