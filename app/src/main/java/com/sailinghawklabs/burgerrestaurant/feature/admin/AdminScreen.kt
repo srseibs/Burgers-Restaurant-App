@@ -1,6 +1,8 @@
 package com.sailinghawklabs.burgerrestaurant.feature.admin
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sailinghawklabs.burgerrestaurant.R
@@ -108,14 +111,19 @@ fun AdminScreenContent(
 
     ) { scaffoldPadding ->
         Column(
-            modifier = Modifier.padding(scaffoldPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding)
+                .padding(horizontal = 24.dp)
+                .imePadding() // is this needed in a scaffold?
         ) {
+
 
         }
     }
 }
 
-// https://youtu.be/urlYyyZH6Eo?si=ixRbAw0bfkrSG29u&t=441
+// https://youtu.be/urlYyyZH6Eo?si=lgJ1FRQQWDHWDG5d&t=2068
 
 @Preview
 @Composable

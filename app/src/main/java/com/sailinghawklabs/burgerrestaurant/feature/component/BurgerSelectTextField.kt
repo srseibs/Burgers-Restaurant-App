@@ -42,45 +42,52 @@ fun BurgerSelectTextField(
 ) {
     val contentColor = if (text.isBlank()) TextPrimary.copy(0.6f) else TextPrimary
 
-    Row(
-        modifier = modifier
-            .background(SurfaceLight)
-            .border(
-                width = 1.dp,
-                color = SurfaceSecondary,
-                shape = RoundedCornerShape(6.dp)
-            )
-            .clip(RoundedCornerShape(6.dp))
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.Top
+    Column(
     ) {
-        if (iconUrl != null) {
-            AsyncImage(
-                model = iconUrl,
-                contentDescription = "Country flag",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
+        Row(
+            modifier = modifier
+                .height(56.dp)
+                .background(SurfaceLight)
+                .border(
+                    width = 1.dp,
+                    color = SurfaceSecondary,
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .clip(RoundedCornerShape(6.dp))
+                .clickable { onClick() }
+                .padding(vertical = 16.dp)
+                .padding(start = 16.dp, end = 16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            if (iconUrl != null) {
+                AsyncImage(
+                    model = iconUrl,
+                    contentDescription = "Country flag",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(14.dp))
+            }
+            Text(
+                text = text.ifBlank { placeholder },
+                fontSize = AppFontSize.EXTRA_REGULAR,
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.width(14.dp))
-        Text(
-            text = text.ifBlank { placeholder },
-            fontSize = AppFontSize.REGULAR,
-            color = contentColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-    if (isError) {
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "Invalid selection",
-            color = Color.Red,
-            fontSize = AppFontSize.SMALL,
-        )
+//        Spacer(modifier = Modifier.height(4.dp))
+        if (isError) {
+            Text(
+                text = "Invalid selection",
+                color = Color.Red,
+                fontSize = AppFontSize.SMALL,
+            )
+        } else {
+            Text("")
+        }
     }
 
 
