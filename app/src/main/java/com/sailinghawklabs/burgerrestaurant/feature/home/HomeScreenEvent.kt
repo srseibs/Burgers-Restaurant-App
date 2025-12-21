@@ -4,4 +4,5 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 sealed interface HomeScreenEvent {
     data object LogoutRequest : HomeScreenEvent
     data object RequestProfile : HomeScreenEvent
+    data object RequestAdmin : HomeScreenEvent
 }

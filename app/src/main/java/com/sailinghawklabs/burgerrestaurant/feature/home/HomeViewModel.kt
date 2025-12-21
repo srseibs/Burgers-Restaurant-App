@@ -68,6 +68,12 @@ class HomeViewModel(
                 }
             }
 
+            is HomeScreenEvent.RequestAdmin -> {
+                viewModelScope.launch {
+                    _commands.send(HomeScreenCommand.NavigateToAdmin)
+                }
+            }
+
         }
     }
 

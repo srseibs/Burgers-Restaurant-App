@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sailinghawklabs.burgerrestaurant.feature.admin.AdminScreen
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthScreen
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeScreen
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileScreen
@@ -47,12 +48,23 @@ fun Navigator(
                 },
                 onProfileClick = {
                     navController.navigate(Destination.ProfileScreen)
+                },
+                onAdminClick = {
+                    navController.navigate(Destination.AdminScreen)
                 }
             )
         }
 
         composable<Destination.ProfileScreen> {
             ProfileScreen(
+                onNavigateBack = {
+                    navController.navigateAndDontComeBack(Destination.HomeGraph)
+                }
+            )
+        }
+
+        composable<Destination.AdminScreen> {
+            AdminScreen(
                 onNavigateBack = {
                     navController.navigateAndDontComeBack(Destination.HomeGraph)
                 }

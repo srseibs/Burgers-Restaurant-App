@@ -4,5 +4,6 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 sealed interface HomeScreenCommand {
     data object ExitDueToUserSignedOff : HomeScreenCommand
     data object NavigateToProfile : HomeScreenCommand
+    data object NavigateToAdmin : HomeScreenCommand
     data class ShowErrorMessage(val message: String) : HomeScreenCommand
 }

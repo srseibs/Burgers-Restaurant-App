@@ -27,4 +27,7 @@ sealed interface Destination {
 
     @Serializable
     data object Categories : Destination
+
+    @Serializable
+    data object AdminScreen : Destination
 }

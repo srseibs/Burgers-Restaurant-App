@@ -70,7 +70,8 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     onProfileClick: () -> Unit,
-    onSignedOut: () -> Unit
+    onSignedOut: () -> Unit,
+    onAdminClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentUser = state.currentUser
@@ -94,6 +95,12 @@ fun HomeScreen(
             is HomeScreenCommand.NavigateToProfile -> {
                 onProfileClick()
             }
+
+            is HomeScreenCommand.NavigateToAdmin -> {
+                onAdminClick()
+
+            }
+
         }
     }
 }
@@ -154,7 +161,8 @@ fun HomeScreenContent(
             photoUrl = currentUser?.photoUrl.toString(),
             displayName = currentUser?.displayName,
             onSignOutClick = { onEvent(HomeScreenEvent.LogoutRequest) },
-            onProfileClick = { onEvent(HomeScreenEvent.RequestProfile) }
+            onProfileClick = { onEvent(HomeScreenEvent.RequestProfile) },
+            onAdminClick = { onEvent(HomeScreenEvent.RequestAdmin) }
         )
 
         // Box for the Scaffold
