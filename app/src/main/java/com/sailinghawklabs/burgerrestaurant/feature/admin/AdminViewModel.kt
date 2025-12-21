@@ -27,13 +27,19 @@ class AdminViewModel : ViewModel() {
 
     fun onEvent(event: AdminScreenEvent) {
         when (event) {
-            AdminScreenEvent.RequestNavigateBack -> {
+            is AdminScreenEvent.RequestNavigateBack -> {
                 viewModelScope.launch {
                     _commands.send(AdminScreenCommand.NavigateBack)
                 }
             }
 
-            else -> TODO("Handle events")
+            is AdminScreenEvent.RequestNavigateToManageProduct -> {
+                viewModelScope.launch {
+                    _commands.send(AdminScreenCommand.NavigateToManageProduct(event.productId))
+                }
+            }
+
+
         }
     }
 

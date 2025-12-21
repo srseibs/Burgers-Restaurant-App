@@ -5,7 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.sailinghawklabs.burgerrestaurant.feature.admin.AdminScreen
+import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.ManageProductScreen
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthScreen
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeScreen
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileScreen
@@ -67,6 +69,19 @@ fun Navigator(
             AdminScreen(
                 onNavigateBack = {
                     navController.navigateAndDontComeBack(Destination.HomeGraph)
+                },
+                onNavigateToManageProduct = { productId ->
+                    navController.navigate(Destination.ManageProductScreen(productId))
+                }
+            )
+        }
+
+        composable<Destination.ManageProductScreen> {
+            val productId = it.toRoute<Destination.ManageProductScreen>().productId
+            ManageProductScreen(
+                productId = productId,
+                onNavigateBack = {
+                    navController.navigateAndDontComeBack(Destination.AdminScreen)
                 }
             )
         }

@@ -176,8 +176,6 @@ class ProfileViewModel(
             }
         }
     }
-// https://youtu.be/sziVcSFNix0?si=-C-HiGas-Uv_xHBV&t=1326
-
     // seems like a dumb name for the fun at this point; should be fun savePhotoUrl()
     private fun pickAndUploadPhoto(localUrl: Uri) {
         viewModelScope.launch {

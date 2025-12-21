@@ -3,6 +3,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.admin
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -20,7 +21,9 @@ import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
+import com.sailinghawklabs.burgerrestaurant.ui.theme.ButtonPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
+import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
@@ -28,7 +31,8 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 @Composable
 fun AdminScreen(
     viewModel: AdminViewModel = viewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToManageProduct: (String?) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -39,7 +43,8 @@ fun AdminScreen(
 
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
-            AdminScreenCommand.NavigateBack -> onNavigateBack()
+            is AdminScreenCommand.NavigateBack -> onNavigateBack()
+            is AdminScreenCommand.NavigateToManageProduct -> onNavigateToManageProduct(command.productId)
         }
     }
 }
@@ -69,6 +74,16 @@ fun AdminScreenContent(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = { })
+                    {
+                        Icon(
+                            painter = painterResource(Resources.Icon.Search),
+                            contentDescription = "Search",
+                            tint = IconPrimary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
                     scrolledContainerColor = Surface,
@@ -77,6 +92,18 @@ fun AdminScreenContent(
                     actionIconContentColor = IconPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onEvent(AdminScreenEvent.RequestNavigateToManageProduct(null)) },
+                containerColor = ButtonPrimary,
+                contentColor = IconPrimary
+            ) {
+                Icon(
+                    painter = painterResource(Resources.Icon.Plus),
+                    contentDescription = "Add"
+                )
+            }
         }
 
     ) { scaffoldPadding ->
@@ -87,6 +114,8 @@ fun AdminScreenContent(
         }
     }
 }
+
+// https://youtu.be/urlYyyZH6Eo?si=ixRbAw0bfkrSG29u&t=441
 
 @Preview
 @Composable

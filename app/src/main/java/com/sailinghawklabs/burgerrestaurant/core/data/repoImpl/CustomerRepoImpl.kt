@@ -231,6 +231,4 @@ class CustomerRepoImpl() : CustomerRepository {
     } catch (e: Exception) {
         RequestState.Error("Error uploading profile photo: ${e.message}")
     }
-// https://youtu.be/sziVcSFNix0?si=Qj3vXj46UrM2Nnf2&t=960
-
 }
