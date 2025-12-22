@@ -45,6 +45,7 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceLight
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextBrand
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
+import com.sailinghawklabs.burgerrestaurant.ui.theme.TextWhite
 
 @Composable
 fun CategoryDialog(
@@ -111,14 +112,17 @@ fun CategoryDialog(
                             Text(
                                 modifier = Modifier.weight(1f),
                                 text = currentCategory.title,
-                                color = TextPrimary,
+                                color = if (currentCategory == currentlySelectedCategory)
+                                    TextWhite
+                                else
+                                    TextPrimary,
                                 fontSize = AppFontSize.REGULAR
                             )
                             AnimatedVisibility(visible = currentCategory == currentlySelectedCategory) {
                                 Icon(
                                     painter = painterResource(Resources.Icon.Checkmark),
                                     contentDescription = "Checkmark Icon",
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.size(16.dp),
                                     tint = IconWhite
                                 )
                             }
