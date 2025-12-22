@@ -3,6 +3,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.CategoryDialog
-import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerSelectTextField
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -163,11 +163,23 @@ fun ManageProductScreen(
                         label = "Description",
                         expanded = true
                     )
-                    BurgerSelectTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = selectedProductCategory?.title ?: "",
-                        placeholder = "Category",
-                        onClick = { showCategoryDialog = true },
+//                    BurgerSelectTextField(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        text = selectedProductCategory?.title ?: "",
+//                        placeholder = "Category",
+//                        onClick = { showCategoryDialog = true },
+//                    )
+
+                    BurgerTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showCategoryDialog = true },
+                        enabled = false,
+                        value = selectedProductCategory?.title ?: "",
+                        onValueChange = { },
+                        showError = false,
+                        label = "Category",
+
                     )
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
