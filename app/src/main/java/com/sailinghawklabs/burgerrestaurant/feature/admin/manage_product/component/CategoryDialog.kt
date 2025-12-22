@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,11 @@ fun CategoryDialog(
     onSelectedCategory: (ProductCategory) -> Unit
 ) {
 
-    var selectedCategory: ProductCategory? by rememberSaveable { mutableStateOf(selectedCategory) }
+    var currentlySelectedCategory by rememberSaveable { mutableStateOf(selectedCategory) }
+    LaunchedEffect(selectedCategory) {
+        currentlySelectedCategory = selectedCategory
+    }
+
 
     AlertDialog(
         modifier = modifier,
@@ -78,13 +83,13 @@ fun CategoryDialog(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedCategory = currentCategory }
+                            .clickable { currentlySelectedCategory = currentCategory }
                             .padding(vertical = 4.dp),
                         elevation = CardDefaults.cardElevation(
                             defaultElevation = 4.dp
                         ),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (currentCategory == selectedCategory)
+                            containerColor = if (currentCategory == currentlySelectedCategory)
                                 BrandBrown
                             else Gray
                         )
@@ -109,7 +114,7 @@ fun CategoryDialog(
                                 color = TextPrimary,
                                 fontSize = AppFontSize.REGULAR
                             )
-                            AnimatedVisibility(visible = currentCategory == selectedCategory) {
+                            AnimatedVisibility(visible = currentCategory == currentlySelectedCategory) {
                                 Icon(
                                     painter = painterResource(Resources.Icon.Checkmark),
                                     contentDescription = "Checkmark Icon",
@@ -125,7 +130,7 @@ fun CategoryDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    selectedCategory?.let {
+                    currentlySelectedCategory?.let {
                         onSelectedCategory(it)
                     }
                 },

@@ -1,5 +1,6 @@
 package com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
+import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
+import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.CategoryDialog
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerSelectTextField
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
@@ -54,6 +58,25 @@ fun ManageProductScreen(
     onNavigateBack: () -> Unit,
     productId: String?
 ) {
+    var selectedProductCategory: ProductCategory? by rememberSaveable { mutableStateOf(null) }
+    var showCategoryDialog by rememberSaveable { mutableStateOf(false) }
+    val allCategories = ProductCategory.entries
+
+    AnimatedVisibility(
+        visible = showCategoryDialog
+    ) {
+        CategoryDialog(
+            categories = allCategories,
+            onDismiss = { showCategoryDialog = false },
+            onSelectedCategory = {
+                selectedProductCategory = it
+                showCategoryDialog = false
+
+            },
+            selectedCategory = selectedProductCategory
+        )
+    }
+
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -142,9 +165,9 @@ fun ManageProductScreen(
                     )
                     BurgerSelectTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "",
+                        text = selectedProductCategory?.title ?: "",
                         placeholder = "Category",
-                        onClick = {},
+                        onClick = { showCategoryDialog = true },
                     )
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
