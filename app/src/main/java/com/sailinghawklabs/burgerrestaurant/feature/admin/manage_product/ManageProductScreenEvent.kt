@@ -6,4 +6,5 @@ import android.net.Uri
 sealed interface ManageProductScreenEvent {
     data class RequestUploadImage(val imageUri: Uri?) : ManageProductScreenEvent
     data object DeleteUploadedImage : ManageProductScreenEvent
+    data object RetryImageAccess : ManageProductScreenEvent
 }

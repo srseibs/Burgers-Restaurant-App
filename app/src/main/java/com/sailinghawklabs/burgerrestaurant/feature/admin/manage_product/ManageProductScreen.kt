@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -50,10 +51,12 @@ import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.CategoryDialog
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
+import com.sailinghawklabs.burgerrestaurant.feature.component.ErrorCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
+import com.sailinghawklabs.burgerrestaurant.feature.util.MessageUtils
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderIdle
 import com.sailinghawklabs.burgerrestaurant.ui.theme.ButtonPrimary
@@ -63,6 +66,8 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceLight
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -76,15 +81,11 @@ fun ManageProductScreen(
     ManageProductScreenContent(
         state = state,
         onEvent = viewModel::onEvent,
+        commands = viewModel.commandsForScreen,
         productId = productId,
-        onNavigateBack = {}
+        onNavigateBack = { onNavigateBack() }
     )
 
-    ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
-        when (command) {
-            ManageProductScreenCommand.NavigateToMainScreen -> onNavigateBack()
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,6 +93,7 @@ fun ManageProductScreen(
 fun ManageProductScreenContent(
     state: ManageProductState,
     onEvent: (ManageProductScreenEvent) -> Unit,
+    commands: Flow<ManageProductScreenCommand>,
     onNavigateBack: () -> Unit,
     productId: String?
 ) {
@@ -99,6 +101,23 @@ fun ManageProductScreenContent(
     var showCategoryDialog by rememberSaveable { mutableStateOf(false) }
     val allCategories = ProductCategory.entries
     val context = LocalContext.current
+    var showToast by rememberSaveable { mutableStateOf(false) }
+    var toastMessage by rememberSaveable { mutableStateOf("") }
+
+    if (showToast) {
+        MessageUtils.showToast(toastMessage)
+        showToast = false
+    }
+
+    ObserveAsCommand(flow = commands) { command ->
+        when (command) {
+            is ManageProductScreenCommand.NavigateToMainScreen -> onNavigateBack()
+            is ManageProductScreenCommand.ShowMessage -> {
+                toastMessage = command.message
+                showToast = true
+            }
+        }
+    }
 
     val imagPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -240,9 +259,29 @@ fun ManageProductScreenContent(
                                             tint = IconPrimary
                                         )
                                     }
-// https://youtu.be/urlYyyZH6Eo?si=-6Z75UY2liDNmybx&t=5878
                                 }
+                            },
+                            onError = { message ->
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    ErrorCard(message = message)
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    TextButton(
+                                        onClick = {
+                                            onEvent(
+                                                ManageProductScreenEvent.DeleteUploadedImage
+                                            )
+                                        }
+                                    ) {
+                                        Text("Try again")
+                                    }
+                                }
+
                             }
+
                         )
                     }
                     BurgerTextField(
@@ -269,9 +308,9 @@ fun ManageProductScreenContent(
                         value = selectedProductCategory?.title ?: "",
                         onValueChange = { },
                         showError = false,
-                        label = "Category",
+                        label = "Category"
 
-                        )
+                    )
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = "",
@@ -307,9 +346,8 @@ fun ManageProductScreenContent(
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
-
-
                 }
+
                 PrimaryButton(
                     onClick = {},
                     text = if (productId.isNullOrBlank()) "Add New Product" else "Update Product",
@@ -319,7 +357,7 @@ fun ManageProductScreenContent(
                         else
                             Resources.Icon.Checkmark
                     ),
-                    enabled = true // until we have a validator
+                    enabled = false // until we have a validator
                 )
             }
         }
@@ -334,6 +372,7 @@ private fun ManageProductScreenPrev() {
         onNavigateBack = {},
         productId = null,
         state = ManageProductState(),
-        onEvent = {}
+        onEvent = {},
+        commands = flowOf()
     )
 }

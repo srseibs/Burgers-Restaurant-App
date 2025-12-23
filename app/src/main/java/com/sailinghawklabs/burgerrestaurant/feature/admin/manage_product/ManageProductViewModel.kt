@@ -63,6 +63,7 @@ class ManageProductViewModel(
                             productImageUri = downloadUrl
                         )
                     }
+                    _commands.send(ManageProductScreenCommand.ShowMessage("Image uploaded successfully"))
                 }
                 .onFailure { error ->
                     _state.update {
@@ -76,12 +77,14 @@ class ManageProductViewModel(
         }
     }
 
-    private fun deleteProductImageFromStorage(
-        onResult: (Boolean, String) -> Unit
-    ) {
+    private fun deleteProductImageFromStorage() {
         val downloadUrl = _state.value.productImageUri
         if (downloadUrl.isBlank()) {
-            onResult(false, "No image to delete")
+            viewModelScope.launch {
+                _commands.send(
+                    ManageProductScreenCommand.ShowMessage("No image to delete")
+                )
+            }
             return
         }
 
@@ -89,23 +92,41 @@ class ManageProductViewModel(
             val updateResult = adminRepository.deleteProductImageFromStorage(downloadUrl)
             updateResult
                 .onSuccess {
-                    onResult(true, "Image deleted successfully")
+                    _state.update { it.copy(productImageUri = "") }
+                    _commands.send(ManageProductScreenCommand.ShowMessage("Image deleted successfully"))
                 }
                 .onFailure { error ->
-                    onResult(false, error.message ?: "Unknown error deleting the image")
+                    _commands.send(
+                        ManageProductScreenCommand.ShowMessage(
+                            message = "Error deleting the image: ${error.message ?: "Unknown"}"
+                        )
+                    )
                 }
         }
-
     }
 
     fun onEvent(event: ManageProductScreenEvent) {
         when (event) {
-            is ManageProductScreenEvent.RequestUploadImage ->
+            is ManageProductScreenEvent.RequestUploadImage -> {
                 uploadProductImageToStorage(event.imageUri)
+            }
 
-            is ManageProductScreenEvent.DeleteUploadedImage ->
-                deleteProductImageFromStorage { success, message -> }
+            is ManageProductScreenEvent.DeleteUploadedImage -> {
+                deleteProductImageFromStorage()
+                _state.update {
+                    it.copy(
+                        imageUploaderState = RequestState.Idle
+                    )
+                }
+            }
+
+            ManageProductScreenEvent.RetryImageAccess -> {
+                _state.update {
+                    it.copy(
+                        imageUploaderState = RequestState.Idle
+                    )
+                }
+            }
         }
-
     }
 }
