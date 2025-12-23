@@ -4,11 +4,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.auth.GoogleUiClient
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.AdminRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CountryRepositoryImpl
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.remote.RestCountriesApi
+import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.AdminRepoImpl
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl
+import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.ManageProductViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileViewModel
@@ -53,11 +56,14 @@ val appModule = module {
 
     single<CustomerRepository> { CustomerRepoImpl() }
     single<CountryRepository> { CountryRepositoryImpl(restCountriesApi = get()) }
+    single<AdminRepository> { AdminRepoImpl() }
+
 
     viewModel { AuthViewModel(customerRepository = get(), googleAuthUiClient = get()) }
     viewModel { SplashViewModel(googleAuthUiClient = get()) }
     viewModel { HomeViewModel(customerRepository = get()) }
     viewModel { ProfileViewModel(customerRepository = get(), countryRepository = get()) }
+    viewModel { ManageProductViewModel(adminRepository = get(), savedStateHandle = get()) }
 
     single {
         GoogleUiClient(
