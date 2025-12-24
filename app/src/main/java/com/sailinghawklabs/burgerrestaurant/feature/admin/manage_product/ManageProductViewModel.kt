@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.AdminRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
@@ -30,7 +31,12 @@ class ManageProductViewModel(
     val state = _state
         .onStart {
             val args = savedStateHandle.toRoute<Destination.ManageProductScreen>()
-            _state.update { it.copy(productId = args.productId) }
+            _state.update {
+                it.copy(
+                    productId = args.productId,
+                    allCategories = ProductCategory.entries
+                )
+            }
         }
         .stateIn(
             scope = viewModelScope,
@@ -105,6 +111,10 @@ class ManageProductViewModel(
         }
     }
 
+    private fun lookupCategory(categoryTitle: String): ProductCategory? {
+        return ProductCategory.entries.find { it.title.equals(categoryTitle, ignoreCase = true) }
+    }
+
     fun onEvent(event: ManageProductScreenEvent) {
         when (event) {
             is ManageProductScreenEvent.RequestUploadImage -> {
@@ -125,6 +135,63 @@ class ManageProductViewModel(
                     it.copy(
                         imageUploaderState = RequestState.Idle
                     )
+                }
+            }
+
+            ManageProductScreenEvent.CategoryFieldClicked -> {
+                _state.update {
+                    it.copy(
+                        isCategoryDialogOpen = true
+                    )
+                }
+            }
+
+            ManageProductScreenEvent.CategoryDialogDismissed -> {
+                _state.update {
+                    it.copy(
+                        isCategoryDialogOpen = false
+                    )
+                }
+            }
+
+            is ManageProductScreenEvent.CategorySelected -> {
+                _state.update {
+                    it.copy(
+                        selectedCategory = event.category,
+                        isCategoryDialogOpen = false
+                    )
+                }
+            }
+
+            is ManageProductScreenEvent.UpdateTitle -> {
+                _state.update { it.copy(title = event.newValue) }
+            }
+
+            is ManageProductScreenEvent.UpdateDescription -> {
+                _state.update { it.copy(description = event.newValue) }
+            }
+
+            is ManageProductScreenEvent.UpdateCalories -> {
+                _state.update {
+                    it.copy(calories = event.newValue)
+                }
+            }
+
+            is ManageProductScreenEvent.UpdateAllergyAdvice -> {
+                _state.update {
+                    it.copy(allergyAdvice = event.newValue)
+                }
+            }
+
+            is ManageProductScreenEvent.UpdateIngredients -> {
+                _state.update {
+                    it.copy(ingredients = event.newValue)
+                }
+            }
+
+            is ManageProductScreenEvent.UpdatePrice -> {
+                _state.update {
+                    it.copy(price = event.newValue)
                 }
             }
         }

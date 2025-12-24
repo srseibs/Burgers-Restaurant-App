@@ -31,7 +31,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,9 +47,9 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.sailinghawklabs.burgerrestaurant.R
-import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.CategoryDialog
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
+import com.sailinghawklabs.burgerrestaurant.feature.component.CurrencyVisualTransformation
 import com.sailinghawklabs.burgerrestaurant.feature.component.ErrorCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
@@ -69,6 +68,7 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.roundToLong
 
 @Composable
 fun ManageProductScreen(
@@ -97,15 +97,15 @@ fun ManageProductScreenContent(
     onNavigateBack: () -> Unit,
     productId: String?
 ) {
-    var selectedProductCategory: ProductCategory? by rememberSaveable { mutableStateOf(null) }
-    var showCategoryDialog by rememberSaveable { mutableStateOf(false) }
-    val allCategories = ProductCategory.entries
+    val selectedProductCategory = state.selectedCategory
+    val showCategoryDialog = state.isCategoryDialogOpen
+    val allCategories = state.allCategories
     val context = LocalContext.current
     var showToast by rememberSaveable { mutableStateOf(false) }
     var toastMessage by rememberSaveable { mutableStateOf("") }
 
     if (showToast) {
-        MessageUtils.showToast(toastMessage)
+        MessageUtils.ShowToast(toastMessage)
         showToast = false
     }
 
@@ -132,12 +132,8 @@ fun ManageProductScreenContent(
     ) {
         CategoryDialog(
             categories = allCategories,
-            onDismiss = { showCategoryDialog = false },
-            onSelectedCategory = {
-                selectedProductCategory = it
-                showCategoryDialog = false
-
-            },
+            onDismiss = { onEvent(ManageProductScreenEvent.CategoryDialogDismissed) },
+            onSelectedCategory = { onEvent(ManageProductScreenEvent.CategorySelected(it)) },
             selectedCategory = selectedProductCategory
         )
     }
@@ -286,16 +282,16 @@ fun ManageProductScreenContent(
                     }
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = "",
-                        onValueChange = {},
+                        value = state.title,
+                        onValueChange = { onEvent(ManageProductScreenEvent.UpdateTitle(it)) },
                         label = "Title",
                     )
                     BurgerTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp),
-                        value = "",
-                        onValueChange = {},
+                        value = state.description,
+                        onValueChange = { onEvent(ManageProductScreenEvent.UpdateDescription(it)) },
                         label = "Description",
                         expanded = true
                     )
@@ -303,7 +299,9 @@ fun ManageProductScreenContent(
                     BurgerTextField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { showCategoryDialog = true },
+                            .clickable {
+                                onEvent(ManageProductScreenEvent.CategoryFieldClicked)
+                            },
                         enabled = false,
                         value = selectedProductCategory?.title ?: "",
                         onValueChange = { },
@@ -313,36 +311,51 @@ fun ManageProductScreenContent(
                     )
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = "",
-                        onValueChange = {},
+                        value = state.calories?.toString() ?: "",
+                        onValueChange = {
+                            onEvent(
+                                ManageProductScreenEvent.UpdateCalories(
+                                    it.toIntOrNull() ?: 0
+                                )
+                            )
+                        },
                         label = "Calories",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
-                    var allergyAdvice by remember { mutableStateOf("") }
                     BurgerTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp),
-                        value = allergyAdvice,
+                        value = state.allergyAdvice,
                         expanded = true,
-                        onValueChange = { allergyAdvice = it },
+                        onValueChange = { onEvent(ManageProductScreenEvent.UpdateAllergyAdvice(it)) },
                         label = "Allergy Advice"
                     )
                     BurgerTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp),
-                        value = "",
+                        value = state.ingredients,
                         expanded = true,
-                        onValueChange = {},
+                        onValueChange = { onEvent(ManageProductScreenEvent.UpdateIngredients(it)) },
                         label = "Ingredients"
                     )
                     BurgerTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = "",
-                        onValueChange = {},
+                        value = if (state.price == 0.0) "" else (state.price * 100).roundToLong()
+                            .toString(),
+                        onValueChange = { newText ->
+                            if (newText.length < 9 && newText.all { it.isDigit() }) {
+                                onEvent(
+                                    ManageProductScreenEvent.UpdatePrice(
+                                        (newText.toLongOrNull() ?: 0L) / 100.0
+                                    )
+                                )
+                            }
+                        },
                         label = "Price",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        visualTransformation = CurrencyVisualTransformation()
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))

@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
@@ -46,7 +47,8 @@ fun BurgerTextField(
     errorMessage: String? = null,
     showError: Boolean = true,
     expanded: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val cornerSize = 8.dp
     val supportingText: (@Composable () -> Unit) =
@@ -90,6 +92,7 @@ fun BurgerTextField(
         keyboardOptions = keyboardOptions,
         singleLine = !expanded,
         shape = RoundedCornerShape(cornerSize),
+        visualTransformation = visualTransformation,
         colors = OutlinedTextFieldDefaults.colors(
             // container colors
             focusedContainerColor = SurfaceLight,
@@ -100,7 +103,7 @@ fun BurgerTextField(
 
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
-            disabledTextColor = TextPrimary.copy(Alpha.DISABLED),
+            disabledTextColor = TextPrimary.copy(Alpha.FULL),
             focusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
             unfocusedPlaceholderColor = TextPrimary.copy(Alpha.HALF),
 

@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 object MessageUtils {
 
     @Composable
-    fun showToast(
+    fun ShowToast(
         message: String,
         duration: Int = Toast.LENGTH_SHORT
     ) {
