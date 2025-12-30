@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.AdminRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.model.Product
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -33,8 +35,9 @@ class ManageProductViewModel(
             val args = savedStateHandle.toRoute<Destination.ManageProductScreen>()
             _state.update {
                 it.copy(
-                    productId = args.productId,
-                    allCategories = ProductCategory.entries
+                    productId = args.productId ?: it.productId,
+                    allCategories = ProductCategory.entries,
+                    createProductState = RequestState.Idle
                 )
             }
         }
@@ -194,6 +197,78 @@ class ManageProductViewModel(
                     it.copy(price = event.newValue)
                 }
             }
+
+            is ManageProductScreenEvent.CreateNewProduct -> {
+                createNewProduct()
+            }
+
+            is ManageProductScreenEvent.UpdateExistingProduct -> {
+
+            }
+
         }
+    }
+
+    private fun createNewProduct() {
+        val formValidation = checkIsFormValid()
+        if (formValidation.isError()) {
+            _state.update {
+                it.copy(
+                    createProductState = RequestState.Error(formValidation.getErrorMessage())
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _state.update { it.copy(createProductState = RequestState.Loading) }
+
+                val productState = _state.value
+                val productToCreate = Product(
+                    id = productState.productId,
+                    title = productState.title,
+                    description = productState.description,
+                    category = productState.selectedCategory!!.title,
+                    allergyAdvice = productState.allergyAdvice,
+                    ingredients = productState.ingredients,
+                    price = productState.price,
+                    calories = productState.calories,
+                    productImage = productState.productImageUri
+                )
+
+                adminRepository.createNewProduct(productToCreate)
+                _state.update { it.copy(createProductState = RequestState.Success(Unit)) }
+                _commands.send(ManageProductScreenCommand.ShowMessage("Product created successfully"))
+                delay(1000)
+                _commands.send(ManageProductScreenCommand.NavigateBack)
+
+
+            } catch (e: Exception) {
+                val message = e.message ?: "Unknown error while creating a new product"
+                _state.update { it.copy(createProductState = RequestState.Error(message)) }
+            }
+        }
+
+    }
+
+    fun checkIsFormValid(): RequestState<String> {
+        if (_state.value.title.isEmpty()) {
+            return RequestState.Error("Title cannot be blank")
+        }
+        if (_state.value.description.isEmpty()) {
+            return RequestState.Error("Description cannot be blank")
+        }
+        if (_state.value.productImageUri.isEmpty()) {
+            return RequestState.Error("Product image cannot be blank")
+        }
+        if (_state.value.selectedCategory == null) {
+            return RequestState.Error("Category cannot be empty")
+        }
+        if (_state.value.price <= 0.0) {
+            return RequestState.Error("Price must be greater than 0")
+        }
+
+        return RequestState.Success("")
     }
 }

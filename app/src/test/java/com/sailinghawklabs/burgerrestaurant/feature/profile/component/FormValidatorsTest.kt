@@ -10,86 +10,86 @@ class FormValidatorsTest {
 
     @Test
     fun `validateFirstName returns null for valid name`() {
-        val result = FormValidators.validateFirstName("John")
+        val result = ProfileFormValodator.validateFirstName("John")
         assertNull(result)
     }
 
     @Test
     fun `validateFirstName returns error for name that is too short`() {
-        val result = FormValidators.validateFirstName("Jo")
+        val result = ProfileFormValodator.validateFirstName("Jo")
         assertNotNull(result)
         assertEquals("Must be 3 to 50 characters", result)
     }
 
     @Test
     fun `validateFirstName returns null for empty name`() {
-        val result = FormValidators.validateFirstName("")
+        val result = ProfileFormValodator.validateFirstName("")
         assertNull(result)
     }
 
     @Test
     fun `validateLastName returns null for valid name`() {
-        val result = FormValidators.validateLastName("Doe")
+        val result = ProfileFormValodator.validateLastName("Doe")
         assertNull(result)
     }
 
     @Test
     fun `validateLastName returns error for name that is too short`() {
-        val result = FormValidators.validateLastName("D")
+        val result = ProfileFormValodator.validateLastName("D")
         assertNotNull(result)
     }
 
     @Test
     fun `validateCity returns null for valid city`() {
-        val result = FormValidators.validateCity("Anytown")
+        val result = ProfileFormValodator.validateCity("Anytown")
         assertNull(result)
     }
 
     @Test
     fun `validateCity returns null for null city`() {
-        val result = FormValidators.validateCity(null)
+        val result = ProfileFormValodator.validateCity(null)
         assertNull(result)
     }
 
     @Test
     fun `validateCity returns error for city that is too short`() {
-        val result = FormValidators.validateCity("An")
+        val result = ProfileFormValodator.validateCity("An")
         assertNotNull(result)
     }
 
     @Test
     fun `validatePostalCode returns null for valid code`() {
-        val result = FormValidators.validatePostalCode(12345)
+        val result = ProfileFormValodator.validatePostalCode(12345)
         assertNull(result)
     }
 
     @Test
     fun `validatePostalCode returns null for null code`() {
-        val result = FormValidators.validatePostalCode(null)
+        val result = ProfileFormValodator.validatePostalCode(null)
         assertNull(result)
     }
 
     @Test
     fun `validatePostalCode returns error for code that is too short`() {
-        val result = FormValidators.validatePostalCode(12)
+        val result = ProfileFormValodator.validatePostalCode(12)
         assertNotNull(result)
     }
 
     @Test
     fun `validatePhoneNumber returns null for valid number`() {
-        val result = FormValidators.validatePhoneNumber(PhoneNumber(1, "5551234567"))
+        val result = ProfileFormValodator.validatePhoneNumber(PhoneNumber(1, "5551234567"))
         assertNull(result)
     }
 
     @Test
     fun `validatePhoneNumber returns null for null number`() {
-        val result = FormValidators.validatePhoneNumber(null)
+        val result = ProfileFormValodator.validatePhoneNumber(null)
         assertNull(result)
     }
 
     @Test
     fun `validatePhoneNumber returns error for number that is too short`() {
-        val result = FormValidators.validatePhoneNumber(PhoneNumber(1, "123"))
+        val result = ProfileFormValodator.validatePhoneNumber(PhoneNumber(1, "123"))
         assertNotNull(result)
     }
 }

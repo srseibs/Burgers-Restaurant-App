@@ -5,7 +5,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import java.util.UUID
 
 data class ManageProductState(
-    val productId: String? = UUID.randomUUID().toString(),
+    val productId: String = UUID.randomUUID().toString(),
     val imageUploaderState: RequestState<Unit> = RequestState.Idle,
     val title: String = "",
     val description: String = "",
@@ -16,5 +16,8 @@ data class ManageProductState(
     val calories: Int? = null,
     val allergyAdvice: String = "",
     val ingredients: String = "",
-    val price: Double = 0.0
-)
+    val price: Double = 0.0,
+
+    val createProductState: RequestState<Unit> = RequestState.Idle,
+
+    )

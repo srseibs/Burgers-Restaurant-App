@@ -46,14 +46,14 @@ fun ProfileForm(
             label = "First Name",
             value = firstName,
             onValueChange = onFirstNameChange,
-            errorMessage = FormValidators.validateFirstName(firstName)
+            errorMessage = ProfileFormValodator.validateFirstName(firstName)
         )
         BurgerTextField(
             modifier = Modifier.fillMaxWidth(),
             label = "Last Name",
             value = lastName,
             onValueChange = onLastNameChange,
-            errorMessage = FormValidators.validateLastName(lastName),
+            errorMessage = ProfileFormValodator.validateLastName(lastName),
         )
         BurgerTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -69,21 +69,21 @@ fun ProfileForm(
             label = "Address",
             value = address ?: "",
             onValueChange = onAddressChange,
-            errorMessage = FormValidators.validateAddress(address),
+            errorMessage = ProfileFormValodator.validateAddress(address),
         )
         BurgerTextField(
             modifier = Modifier.fillMaxWidth(),
             label = "City",
             value = city ?: "",
             onValueChange = onCityChange,
-            errorMessage = FormValidators.validateCity(city),
+            errorMessage = ProfileFormValodator.validateCity(city),
         )
         BurgerTextField(
             modifier = Modifier.fillMaxWidth(),
             label = "Postal code",
             value = postalCode?.toString() ?: "",
             onValueChange = { onPostalCodeChange(it.toIntOrNull()) },
-            errorMessage = FormValidators.validatePostalCode(postalCode),
+            errorMessage = ProfileFormValodator.validatePostalCode(postalCode),
         )
         BurgerSelectTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -113,7 +113,7 @@ fun ProfileForm(
                 label = "Phone number",
                 value = phoneNumber?.number ?: "",
                 onValueChange = onPhoneNumberChange,
-                errorMessage = FormValidators.validatePhoneNumber(phoneNumber),
+                errorMessage = ProfileFormValodator.validatePhoneNumber(phoneNumber),
             )
 
         }

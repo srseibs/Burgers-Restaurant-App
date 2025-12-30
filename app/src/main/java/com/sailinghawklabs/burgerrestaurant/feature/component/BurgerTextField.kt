@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sailinghawklabs.burgerrestaurant.R
-import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
+import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileFormValodator
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderError
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -149,14 +149,14 @@ private fun BurgerTestFieldPrev() {
                 label = "First Name",
                 value = first,
                 onValueChange = { first = it },
-                errorMessage = FormValidators.validateFirstName(first),
+                errorMessage = ProfileFormValodator.validateFirstName(first),
             )
 
             BurgerTextField(
                 label = "Last Name",
                 value = last,
                 onValueChange = { last = it },
-                errorMessage = FormValidators.validateLastName(last)
+                errorMessage = ProfileFormValodator.validateLastName(last)
 
             )
 
@@ -164,7 +164,7 @@ private fun BurgerTestFieldPrev() {
                 label = "City",
                 value = city,
                 onValueChange = { city = it },
-                errorMessage = FormValidators.validateCity(city)
+                errorMessage = ProfileFormValodator.validateCity(city)
             )
 
             BurgerTextField(

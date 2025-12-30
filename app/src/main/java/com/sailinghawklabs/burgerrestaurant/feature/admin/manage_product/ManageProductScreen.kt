@@ -56,6 +56,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
 import com.sailinghawklabs.burgerrestaurant.feature.util.MessageUtils
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderIdle
 import com.sailinghawklabs.burgerrestaurant.ui.theme.ButtonPrimary
@@ -83,7 +84,8 @@ fun ManageProductScreen(
         onEvent = viewModel::onEvent,
         commands = viewModel.commandsForScreen,
         productId = productId,
-        onNavigateBack = { onNavigateBack() }
+        onNavigateBack = { onNavigateBack() },
+        checkIsFormValid = viewModel::checkIsFormValid
     )
 
 }
@@ -92,10 +94,11 @@ fun ManageProductScreen(
 @Composable
 fun ManageProductScreenContent(
     state: ManageProductState,
+    productId: String?,
     onEvent: (ManageProductScreenEvent) -> Unit,
     commands: Flow<ManageProductScreenCommand>,
     onNavigateBack: () -> Unit,
-    productId: String?
+    checkIsFormValid: () -> RequestState<String>
 ) {
     val selectedProductCategory = state.selectedCategory
     val showCategoryDialog = state.isCategoryDialogOpen
@@ -104,6 +107,7 @@ fun ManageProductScreenContent(
     var showToast by rememberSaveable { mutableStateOf(false) }
     var toastMessage by rememberSaveable { mutableStateOf("") }
 
+
     if (showToast) {
         MessageUtils.ShowToast(toastMessage)
         showToast = false
@@ -111,7 +115,7 @@ fun ManageProductScreenContent(
 
     ObserveAsCommand(flow = commands) { command ->
         when (command) {
-            is ManageProductScreenCommand.NavigateToMainScreen -> onNavigateBack()
+            is ManageProductScreenCommand.NavigateBack -> onNavigateBack()
             is ManageProductScreenCommand.ShowMessage -> {
                 toastMessage = command.message
                 showToast = true
@@ -362,7 +366,9 @@ fun ManageProductScreenContent(
                 }
 
                 PrimaryButton(
-                    onClick = {},
+                    onClick = {
+                        onEvent(ManageProductScreenEvent.CreateNewProduct)
+                    },
                     text = if (productId.isNullOrBlank()) "Add New Product" else "Update Product",
                     icon = painterResource(
                         if (productId.isNullOrBlank())
@@ -370,7 +376,7 @@ fun ManageProductScreenContent(
                         else
                             Resources.Icon.Checkmark
                     ),
-                    enabled = false // until we have a validator
+                    enabled = true
                 )
             }
         }
@@ -386,6 +392,7 @@ private fun ManageProductScreenPrev() {
         productId = null,
         state = ManageProductState(),
         onEvent = {},
-        commands = flowOf()
+        commands = flowOf(),
+        checkIsFormValid = { RequestState.Success("") }
     )
 }

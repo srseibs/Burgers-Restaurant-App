@@ -8,7 +8,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Country
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
-import com.sailinghawklabs.burgerrestaurant.feature.profile.component.FormValidators
+import com.sailinghawklabs.burgerrestaurant.feature.profile.component.ProfileFormValodator
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -38,11 +38,11 @@ class ProfileViewModel(
     val isFormDataValid: Boolean
         get() {
             val state = _state.value
-            return FormValidators.validateFirstName(state.firstName) == null && FormValidators.validateLastName(
+            return ProfileFormValodator.validateFirstName(state.firstName) == null && ProfileFormValodator.validateLastName(
                 state.lastName
-            ) == null && FormValidators.validateCity(state.city) == null && FormValidators.validatePostalCode(
+            ) == null && ProfileFormValodator.validateCity(state.city) == null && ProfileFormValodator.validatePostalCode(
                 state.postalCode
-            ) == null && FormValidators.validateAddress(state.address) == null && FormValidators.validatePhoneNumber(
+            ) == null && ProfileFormValodator.validateAddress(state.address) == null && ProfileFormValodator.validatePhoneNumber(
                 state.phoneNumber
             ) == null
         }

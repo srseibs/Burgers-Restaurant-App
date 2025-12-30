@@ -20,5 +20,8 @@ sealed interface ManageProductScreenEvent {
     data class UpdateIngredients(val newValue: String) : ManageProductScreenEvent
     data class UpdatePrice(val newValue: Double) : ManageProductScreenEvent
 
+    data object CreateNewProduct : ManageProductScreenEvent
+    data object UpdateExistingProduct : ManageProductScreenEvent
+
 }
 

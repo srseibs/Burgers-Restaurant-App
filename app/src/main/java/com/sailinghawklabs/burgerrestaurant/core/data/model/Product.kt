@@ -12,6 +12,7 @@ data class Product(
     val calories: Int?,
     val ingredients: String,
     val price: Double,
+    val productImage: String
 )
 
 enum class ProductCategory(
