@@ -17,6 +17,7 @@ object Resources {
         val Dollar = R.drawable.dollar
         val Drinks = R.drawable.drinks
         val Edit = R.drawable.edit
+        val Flame = R.drawable.fire
         val Fries = R.drawable.french_fries
         val Gift = R.drawable.icon_gift
         val Heart = R.drawable.icon_heartoutline

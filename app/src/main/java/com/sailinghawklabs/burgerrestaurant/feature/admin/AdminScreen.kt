@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sailinghawklabs.burgerrestaurant.R
+import com.sailinghawklabs.burgerrestaurant.core.data.model.fakeProducts
+import com.sailinghawklabs.burgerrestaurant.feature.admin.component.ProductCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
@@ -117,6 +121,15 @@ fun AdminScreenContent(
                 .padding(horizontal = 24.dp)
                 .imePadding() // is this needed in a scaffold?
         ) {
+
+            LazyColumn {
+                items(fakeProducts) { product ->
+                    ProductCard(
+                        product = product,
+                        onClick = {}
+                    )
+                }
+            }
 
 
         }
