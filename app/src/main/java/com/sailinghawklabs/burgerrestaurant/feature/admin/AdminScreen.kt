@@ -1,8 +1,8 @@
 package com.sailinghawklabs.burgerrestaurant.feature.admin
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,11 +21,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sailinghawklabs.burgerrestaurant.R
-import com.sailinghawklabs.burgerrestaurant.core.data.model.fakeProducts
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.ProductCard
+import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
+import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
+import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.ButtonPrimary
@@ -34,10 +35,11 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AdminScreen(
-    viewModel: AdminViewModel = viewModel(),
+    viewModel: AdminViewModel = koinViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToManageProduct: (String?) -> Unit
 ) {
@@ -114,29 +116,61 @@ fun AdminScreenContent(
         }
 
     ) { scaffoldPadding ->
-        Column(
+        state.products.DisplayResult(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(scaffoldPadding)
-                .padding(horizontal = 24.dp)
-                .imePadding() // is this needed in a scaffold?
-        ) {
-
-            LazyColumn {
-                items(fakeProducts) { product ->
-                    ProductCard(
-                        product = product,
-                        onClick = {}
-                    )
+                .padding(
+                    top = scaffoldPadding.calculateTopPadding(),
+                    bottom = scaffoldPadding.calculateBottomPadding()
+                ),
+            onLoading = {
+                LoadingCard(modifier = Modifier.fillMaxSize())
+            },
+            onError = { message ->
+                InfoCard(
+                    image = Resources.Icon.Warning,
+                    title = "Error",
+                    subtitle = message
+                )
+            },
+            onSuccess = { latestProducts ->
+                AnimatedContent(
+                    targetState = latestProducts
+                ) { productList ->
+                    if (productList.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(
+                                items = latestProducts,
+                                key = { it.id }
+                            ) { product ->
+                                ProductCard(
+                                    product = product,
+                                    onClick = {
+                                        onEvent(
+                                            AdminScreenEvent.RequestNavigateToManageProduct(product.id)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        InfoCard(
+                            image = Resources.Icon.Warning,
+                            title = "Oops!",
+                            subtitle = "No products were found."
+                        )
+                    }
                 }
             }
-
-
-        }
+        )
     }
 }
 
-// https://youtu.be/urlYyyZH6Eo?si=lgJ1FRQQWDHWDG5d&t=2068
 
 @Preview
 @Composable

@@ -364,7 +364,6 @@ fun ManageProductScreenContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
-// https://youtu.be/urlYyyZH6Eo?si=rIRcvz6HAeQNSxRC&t=8217
                 PrimaryButton(
                     onClick = {
                         onEvent(ManageProductScreenEvent.CreateNewProduct)

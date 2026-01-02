@@ -2,9 +2,11 @@ package com.sailinghawklabs.burgerrestaurant.core.data.model
 
 import androidx.annotation.DrawableRes
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
+import kotlin.time.Clock.System
 
 data class Product(
     val id: String,
+    val createdAt: Long = System.now().toEpochMilliseconds(),
     val title: String,
     val description: String,
     val category: String,

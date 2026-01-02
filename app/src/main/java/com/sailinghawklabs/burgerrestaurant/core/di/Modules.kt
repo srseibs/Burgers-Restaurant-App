@@ -11,6 +11,7 @@ import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.remote.RestCountriesApi
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.AdminRepoImpl
 import com.sailinghawklabs.burgerrestaurant.core.data.repoImpl.CustomerRepoImpl
+import com.sailinghawklabs.burgerrestaurant.feature.admin.AdminViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.ManageProductViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
@@ -64,6 +65,7 @@ val appModule = module {
     viewModel { HomeViewModel(customerRepository = get()) }
     viewModel { ProfileViewModel(customerRepository = get(), countryRepository = get()) }
     viewModel { ManageProductViewModel(adminRepository = get(), savedStateHandle = get()) }
+    viewModel { AdminViewModel(adminRepository = get()) }
 
     single {
         GoogleUiClient(

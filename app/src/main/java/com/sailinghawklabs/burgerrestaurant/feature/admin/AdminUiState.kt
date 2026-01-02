@@ -1,6 +1,8 @@
 package com.sailinghawklabs.burgerrestaurant.feature.admin
 
+import com.sailinghawklabs.burgerrestaurant.core.data.model.Product
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
+
 data class AdminState(
-    val paramOne: String = "default",
-    val paramTwo: List<String> = emptyList(),
+    val products: RequestState<List<Product>> = RequestState.Idle
 )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,6 +50,7 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceLight
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextSecondary
+import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 
 @Composable
 fun ProductCard(
@@ -61,7 +63,7 @@ fun ProductCard(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(160.dp)
             .clip(RoundedCornerShape((12.dp)))
             .border(
                 width = 1.dp,
@@ -94,6 +96,7 @@ fun ProductCard(
                 text = product.description,
                 fontSize = AppFontSize.REGULAR,
                 color = TextPrimary,
+                fontFamily = oswaldVariableFont,
                 fontWeight = FontWeight.Normal,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
@@ -121,23 +124,27 @@ fun ProductCard(
                         contentDescription = "Flame Icon",
                         tint = Color.Unspecified
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = product.calories?.let { "$it kcal" } ?: "",
                         fontSize = AppFontSize.EXTRA_REGULAR,
-                        color = TextSecondary,
-                        fontWeight = FontWeight.Bold
+                        color = TextPrimary,
+                        fontFamily = oswaldVariableFont
                     )
                 }
-
             }
-
-
         }
 
         PreviewableAsyncImage(
             modifier = Modifier
-                .width(140.dp)
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp))
+                .border(
+                    width = 1.dp,
+                    color = BorderIdle,
+                    shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                ),
             model = ImageRequest.Builder(context = LocalPlatformContext.current)
                 .data(product.productImage)
                 .crossfade(true)
