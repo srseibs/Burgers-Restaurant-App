@@ -25,21 +25,12 @@ class ManageProductViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<Destination.ManageProductScreen>()
-    private val productId = args.productId
-
-
     private val _state = MutableStateFlow(ManageProductState())
     val state = _state
         .onStart {
             val args = savedStateHandle.toRoute<Destination.ManageProductScreen>()
-            _state.update {
-                it.copy(
-                    productId = args.productId ?: it.productId,
-                    allCategories = ProductCategory.entries,
-                    createProductState = RequestState.Idle
-                )
-            }
+            val passedProductId = args.productId
+            loadStateData(passedProductId)
         }
         .stateIn(
             scope = viewModelScope,
@@ -49,6 +40,50 @@ class ManageProductViewModel(
 
     private val _commands = Channel<ManageProductScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
+
+
+    private fun loadStateData(passedProductId: String?) {
+        if (!passedProductId.isNullOrEmpty()) {
+
+            viewModelScope.launch {
+                _state.update { it.copy(productDownloadState = RequestState.Loading) }
+
+                when (val result = adminRepository.readProductById(passedProductId)) {
+                    is RequestState.Error -> {
+                        _state.update {
+                            it.copy(
+                                productDownloadState =
+                                    RequestState.Error(message = "Error loading product: ${result.message}")
+                            )
+                        }
+
+                    }
+
+                    RequestState.Idle -> {}
+                    RequestState.Loading -> {}
+
+                    is RequestState.Success -> {
+                        val downloadedProductData = result.data
+                        _state.update {
+                            it.copy(
+                                title = downloadedProductData.title,
+                                description = downloadedProductData.description,
+                                selectedCategory = lookupCategory(downloadedProductData.category),
+                                calories = downloadedProductData.calories,
+                                allergyAdvice = downloadedProductData.allergyAdvice,
+                                ingredients = downloadedProductData.ingredients,
+                                price = downloadedProductData.price,
+                                productImageUri = downloadedProductData.productImage,
+                                productDownloadState = RequestState.Success(Unit),
+                                imageUploaderState = RequestState.Success(Unit),
+                                productId = downloadedProductData.id,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun uploadProductImageToStorage(imageUri: Uri?) {
         if (imageUri == null) {
@@ -115,7 +150,12 @@ class ManageProductViewModel(
     }
 
     private fun lookupCategory(categoryTitle: String): ProductCategory? {
-        return ProductCategory.entries.find { it.title.equals(categoryTitle, ignoreCase = true) }
+        return ProductCategory.entries.find {
+            it.title.equals(
+                categoryTitle,
+                ignoreCase = true
+            )
+        }
     }
 
     fun onEvent(event: ManageProductScreenEvent) {

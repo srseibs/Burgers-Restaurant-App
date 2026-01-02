@@ -6,7 +6,11 @@ import java.util.UUID
 
 data class ManageProductState(
     val productId: String = UUID.randomUUID().toString(),
+
     val imageUploaderState: RequestState<Unit> = RequestState.Idle,
+    val productDownloadState: RequestState<Unit> = RequestState.Idle,
+    val createProductState: RequestState<Unit> = RequestState.Idle,
+
     val title: String = "",
     val description: String = "",
     val selectedCategory: ProductCategory? = null,
@@ -16,8 +20,7 @@ data class ManageProductState(
     val calories: Int? = null,
     val allergyAdvice: String = "",
     val ingredients: String = "",
-    val price: Double = 0.0,
+    val price: Double = 0.0
 
-    val createProductState: RequestState<Unit> = RequestState.Idle,
 
-    )
+)
