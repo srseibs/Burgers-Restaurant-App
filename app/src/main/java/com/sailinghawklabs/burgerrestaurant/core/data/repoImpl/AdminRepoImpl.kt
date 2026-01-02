@@ -146,4 +146,41 @@ class AdminRepoImpl() : AdminRepository {
         }
     }
 
+    override suspend fun updateProduct(
+        product: Product
+    ): Result<Unit> {
+        return try {
+            val database = Firebase.firestore
+            val productCollection = database.collection("products")
+            val productDocRef = productCollection.document(product.id)
+
+            productDocRef.set(product).await()
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(
+                IllegalStateException(
+                    "Error while updating product: ${e.message}"
+                )
+            )
+        }
+    }
+
+    override suspend fun deleteProduct(productId: String): Result<Unit> {
+        return try {
+            val database = Firebase.firestore
+            val productCollection = database.collection("products")
+            val productDocRef = productCollection.document(productId)
+
+            productDocRef.delete().await()
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(
+                IllegalStateException(
+                    "Error while deleting product: ${e.message}"
+                )
+            )
+        }
+    }
 }

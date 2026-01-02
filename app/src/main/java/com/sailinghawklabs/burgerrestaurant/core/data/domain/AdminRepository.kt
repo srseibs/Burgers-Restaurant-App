@@ -22,4 +22,10 @@ interface AdminRepository {
 
     suspend fun readProductById(productId: String): RequestState<Product>
 
+    suspend fun updateProduct(
+        product: Product
+    ): Result<Unit>
+
+    suspend fun deleteProduct(productId: String): Result<Unit>
+
 }

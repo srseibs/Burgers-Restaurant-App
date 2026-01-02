@@ -20,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +108,8 @@ fun ManageProductScreenContent(
     val context = LocalContext.current
     var showToast by rememberSaveable { mutableStateOf(false) }
     var toastMessage by rememberSaveable { mutableStateOf("") }
+    var dropDownMenuOpen by rememberSaveable { mutableStateOf(false) }
+
 
 
     if (showToast) {
@@ -164,6 +168,40 @@ fun ManageProductScreenContent(
                         )
                     }
                 },
+                actions = {
+                    productId.takeIf { it != null }?.let {
+                        Box {
+                            IconButton(onClick = { dropDownMenuOpen = true }) {
+                                Icon(
+                                    painter = painterResource(Resources.Icon.VerticalMenu),
+                                    contentDescription = "Vertical Menu Icon",
+                                    tint = IconPrimary
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = dropDownMenuOpen,
+                                onDismissRequest = { dropDownMenuOpen = false }
+                            ) {
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(14.dp),
+                                            painter = painterResource(Resources.Icon.Delete),
+                                            contentDescription = "Delete",
+                                            tint = IconPrimary
+                                        )
+                                    },
+                                    text = { Text("Delete Product", color = TextPrimary) },
+                                    onClick = {
+                                        dropDownMenuOpen = false
+                                        onEvent(ManageProductScreenEvent.DeleteExistingProduct)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                },
+
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
                     scrolledContainerColor = Surface,
@@ -366,7 +404,10 @@ fun ManageProductScreenContent(
                 }
                 PrimaryButton(
                     onClick = {
-                        onEvent(ManageProductScreenEvent.CreateNewProduct)
+                        if (productId.isNullOrBlank())
+                            onEvent(ManageProductScreenEvent.CreateNewProduct)
+                        else
+                            onEvent(ManageProductScreenEvent.UpdateExistingProduct)
                     },
                     text = if (productId.isNullOrBlank()) "Add New Product" else "Update Product",
                     icon = painterResource(

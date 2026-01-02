@@ -10,6 +10,9 @@ data class ManageProductState(
     val imageUploaderState: RequestState<Unit> = RequestState.Idle,
     val productDownloadState: RequestState<Unit> = RequestState.Idle,
     val createProductState: RequestState<Unit> = RequestState.Idle,
+    val updateProductState: RequestState<Unit> = RequestState.Idle,
+    val deleteProductState: RequestState<Unit> = RequestState.Idle,
+
 
     val title: String = "",
     val description: String = "",

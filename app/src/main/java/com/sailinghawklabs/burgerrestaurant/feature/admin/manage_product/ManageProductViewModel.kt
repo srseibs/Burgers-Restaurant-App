@@ -43,6 +43,8 @@ class ManageProductViewModel(
 
 
     private fun loadStateData(passedProductId: String?) {
+        _state.update { it.copy(allCategories = ProductCategory.entries) }
+
         if (!passedProductId.isNullOrEmpty()) {
 
             viewModelScope.launch {
@@ -243,24 +245,110 @@ class ManageProductViewModel(
             }
 
             is ManageProductScreenEvent.UpdateExistingProduct -> {
-
+                updateProductDetails()
             }
 
+            ManageProductScreenEvent.DeleteExistingProduct -> {
+                deleteProduct(_state.value.productId)
+            }
         }
     }
 
-    private fun createNewProduct() {
-        val formValidation = checkIsFormValid()
-        if (formValidation.isError()) {
-            _state.update {
-                it.copy(
-                    createProductState = RequestState.Error(formValidation.getErrorMessage())
+    private fun deleteProduct(productId: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(deleteProductState = RequestState.Loading) }
+            val result = adminRepository.deleteProduct(productId)
+            result
+                .onSuccess {
+                    _state.update { it.copy(deleteProductState = RequestState.Success(Unit)) }
+                    _commands.send(ManageProductScreenCommand.ShowMessage("Product deleted successfully"))
+                    delay(1000)
+                    _commands.send(ManageProductScreenCommand.NavigateBack)
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            deleteProductState = RequestState.Error(
+                                message = "Error while deleting product: ${error.message ?: "Unknown"}"
+                            )
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun updateProductDetails() {
+        viewModelScope.launch {
+            _state.update { it.copy(updateProductState = RequestState.Loading) }
+
+            val isDataComplete = checkIsFormValid()
+            if (isDataComplete.isError()) {
+                _state.update {
+                    it.copy(
+                        updateProductState = RequestState.Error(
+                            message = "Product Form is not complete: ${isDataComplete.getErrorMessage()}"
+                        )
+                    )
+                }
+                return@launch
+            }
+
+            val currentState = _state.value
+            val updatedProduct = Product(
+                id = currentState.productId,
+                title = currentState.title,
+                description = currentState.description,
+                category = currentState.selectedCategory!!.title,
+                allergyAdvice = currentState.allergyAdvice,
+                ingredients = currentState.ingredients,
+                price = currentState.price,
+                calories = currentState.calories,
+                productImage = currentState.productImageUri
+            )
+
+            val result = adminRepository.updateProduct(updatedProduct)
+
+            result.onSuccess {
+                _state.update { it.copy(updateProductState = RequestState.Success(Unit)) }
+                _commands.send(ManageProductScreenCommand.ShowMessage("Product updated successfully"))
+            }.onFailure { error ->
+
+                _state.update {
+                    it.copy(
+                        updateProductState = RequestState.Error(
+                            message = "Error while updating product: ${error.message ?: "Unknown"}"
+                        )
+                    )
+                }
+                _commands.send(
+                    ManageProductScreenCommand.ShowMessage(
+                        "Error while updating product: ${error.message ?: "Unknown"}"
+                    )
                 )
             }
-            return
         }
+    }
+
+
+    private fun createNewProduct() {
 
         viewModelScope.launch {
+            val formValidation = checkIsFormValid()
+
+            if (formValidation.isError()) {
+                _state.update {
+                    it.copy(
+                        createProductState = RequestState.Error(formValidation.getErrorMessage())
+                    )
+                }
+                _commands.send(
+                    ManageProductScreenCommand.ShowMessage(
+                        "Data entry error: ${formValidation.getErrorMessage()}"
+                    )
+                )
+                return@launch
+            }
+
             try {
                 _state.update { it.copy(createProductState = RequestState.Loading) }
 

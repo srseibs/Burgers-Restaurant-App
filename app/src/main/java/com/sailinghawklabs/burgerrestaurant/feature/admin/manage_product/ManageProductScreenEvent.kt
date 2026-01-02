@@ -22,6 +22,8 @@ sealed interface ManageProductScreenEvent {
 
     data object CreateNewProduct : ManageProductScreenEvent
     data object UpdateExistingProduct : ManageProductScreenEvent
+    data object DeleteExistingProduct : ManageProductScreenEvent
+
 
 }
 
