@@ -106,23 +106,13 @@ fun ManageProductScreenContent(
     val showCategoryDialog = state.isCategoryDialogOpen
     val allCategories = state.allCategories
     val context = LocalContext.current
-    var showToast by rememberSaveable { mutableStateOf(false) }
-    var toastMessage by rememberSaveable { mutableStateOf("") }
     var dropDownMenuOpen by rememberSaveable { mutableStateOf(false) }
-
-
-
-    if (showToast) {
-        MessageUtils.ShowToast(toastMessage)
-        showToast = false
-    }
 
     ObserveAsCommand(flow = commands) { command ->
         when (command) {
             is ManageProductScreenCommand.NavigateBack -> onNavigateBack()
             is ManageProductScreenCommand.ShowMessage -> {
-                toastMessage = command.message
-                showToast = true
+                MessageUtils.showToast(context, command.message)
             }
         }
     }
@@ -310,7 +300,7 @@ fun ManageProductScreenContent(
                                     TextButton(
                                         onClick = {
                                             onEvent(
-                                                ManageProductScreenEvent.DeleteUploadedImage
+                                                ManageProductScreenEvent.RetryImageAccess
                                             )
                                         }
                                     ) {
@@ -345,7 +335,7 @@ fun ManageProductScreenContent(
                                 onEvent(ManageProductScreenEvent.CategoryFieldClicked)
                             },
                         enabled = false,
-                        value = selectedProductCategory?.title ?: "",
+                        value = state.selectedCategory?.title ?: "",
                         onValueChange = { },
                         showError = false,
                         label = "Category"
@@ -402,12 +392,14 @@ fun ManageProductScreenContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
+
                 PrimaryButton(
                     onClick = {
-                        if (productId.isNullOrBlank())
+                        if (productId.isNullOrEmpty()) {
                             onEvent(ManageProductScreenEvent.CreateNewProduct)
-                        else
+                        } else {
                             onEvent(ManageProductScreenEvent.UpdateExistingProduct)
+                        }
                     },
                     text = if (productId.isNullOrBlank()) "Add New Product" else "Update Product",
                     icon = painterResource(
@@ -416,7 +408,7 @@ fun ManageProductScreenContent(
                         else
                             Resources.Icon.Checkmark
                     ),
-                    enabled = true
+                    enabled = checkIsFormValid().isSuccess()
                 )
             }
         }
