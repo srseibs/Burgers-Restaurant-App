@@ -28,4 +28,8 @@ interface AdminRepository {
 
     suspend fun deleteProduct(productId: String): Result<Unit>
 
+    fun searchProductByTitle(
+        query: String,
+        numberOfProducts: Long = 10
+    ): Flow<RequestState<List<Product>>>
 }

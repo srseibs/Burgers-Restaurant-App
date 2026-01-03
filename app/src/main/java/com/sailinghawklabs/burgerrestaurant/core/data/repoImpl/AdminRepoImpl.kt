@@ -19,6 +19,9 @@ import java.util.UUID
 
 class AdminRepoImpl() : AdminRepository {
 
+    companion object {
+        private const val PREFIX_SEARCH_END_CHAR = "\uf8ff"
+    }
 
     private fun DocumentSnapshot.toProduct(): Product {
         return Product(
@@ -55,7 +58,6 @@ class AdminRepoImpl() : AdminRepository {
     }
 
     override suspend fun deleteProductImageFromStorage(downloadUrl: String): Result<Unit> {
-
         return try {
             val storagePath = Firebase.storage.getReferenceFromUrl(downloadUrl)
             storagePath.delete().await()
@@ -183,4 +185,39 @@ class AdminRepoImpl() : AdminRepository {
             )
         }
     }
+
+    override fun searchProductByTitle(
+        query: String,
+        numberOfProducts: Long
+    ): Flow<RequestState<List<Product>>> =
+        channelFlow {
+            try {
+                val database = Firebase.firestore
+                val productCollection = database.collection("products")
+                if (query.isBlank()) {
+                    send(RequestState.Success(emptyList()))
+                    return@channelFlow
+                }
+                productCollection
+                    .orderBy("title", Query.Direction.ASCENDING)
+                    .startAt(query)
+                    .endAt(query + PREFIX_SEARCH_END_CHAR)
+                    .limit(numberOfProducts)
+                    .snapshots()
+                    .collectLatest { queryDocumentSnapshots ->
+                        val products = queryDocumentSnapshots.documents
+                            .map { documentSnapshot ->
+                                documentSnapshot.toProduct()
+                            }
+                        send(RequestState.Success(products))
+                    }
+
+            } catch (e: Exception) {
+                send(
+                    RequestState.Error(
+                        message = "Error searching products from database. ${e.message ?: "Unknown Error"}"
+                    )
+                )
+            }
+        }
 }

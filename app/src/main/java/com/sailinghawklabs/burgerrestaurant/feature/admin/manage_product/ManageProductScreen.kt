@@ -414,7 +414,7 @@ fun ManageProductScreenContent(
         }
     }
 }
-
+// https://youtu.be/urlYyyZH6Eo?si=O7vFV2kKwX9AL5ZY&t=11808
 
 @Preview(showBackground = true, showSystemUi = false, backgroundColor = 0xFF721E1E)
 @Composable

@@ -3,7 +3,9 @@ package com.sailinghawklabs.burgerrestaurant.feature.admin
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,11 +13,17 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarColors
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,11 +36,13 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
+import com.sailinghawklabs.burgerrestaurant.ui.theme.BorderIdle
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.ButtonPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
+import com.sailinghawklabs.burgerrestaurant.ui.theme.SurfaceLight
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 import org.koin.androidx.compose.koinViewModel
@@ -64,47 +74,109 @@ fun AdminScreenContent(
     state: AdminState,
     onEvent: (AdminScreenEvent) -> Unit,
 ) {
+    var searchBarVisible by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         containerColor = Surface,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Administration",
-                        fontFamily = oswaldVariableFont,
-                        fontSize = AppFontSize.LARGE,
+            AnimatedContent(targetState = searchBarVisible) { visible ->
+// https://youtu.be/urlYyyZH6Eo?si=Bi6P9ne3LnD-2Tgx&t=12278
+                if (visible) {
+                    SearchBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        inputField = {
+                            SearchBarDefaults.InputField(
+                                modifier = Modifier.fillMaxWidth(),
+                                query = state.searchQuery,
+                                onQueryChange = { onEvent(AdminScreenEvent.SearchQueryChanged(it)) },
+                                expanded = false,
+                                onExpandedChange = {},
+                                onSearch = {},
+                                placeholder = {
+                                    Text(
+                                        text = "Search products ... ",
+                                        fontSize = AppFontSize.REGULAR,
+                                        color = TextPrimary
+                                    )
+                                },
+                                trailingIcon = {
+                                    IconButton(
+                                        modifier = Modifier.size(14.dp),
+                                        onClick = {
+                                            if (state.searchQuery.isBlank()) {
+                                                searchBarVisible = false
+                                            } else {
+                                                onEvent(AdminScreenEvent.SearchQueryChanged(""))
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Resources.Icon.Close),
+                                            contentDescription = "Close",
+                                            tint = IconPrimary
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        colors = SearchBarColors(
+                            containerColor = SurfaceLight,
+                            dividerColor = BorderIdle,
+                            inputFieldColors = SearchBarDefaults.inputFieldColors()
+                        ),
+                        expanded = false,
+                        onExpandedChange = {},
+                        content = {}
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(AdminScreenEvent.RequestNavigateBack) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.back_arrow),
-                            contentDescription = "Back Arrow",
+                } else {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "Administration",
+                                fontFamily = oswaldVariableFont,
+                                fontSize = AppFontSize.LARGE,
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { onEvent(AdminScreenEvent.RequestNavigateBack) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.back_arrow),
+                                    contentDescription = "Back Arrow",
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { searchBarVisible = true })
+                            {
+                                Icon(
+                                    painter = painterResource(Resources.Icon.Search),
+                                    contentDescription = "Search",
+                                    tint = IconPrimary
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Surface,
+                            scrolledContainerColor = Surface,
+                            navigationIconContentColor = IconPrimary,
+                            titleContentColor = TextPrimary,
+                            actionIconContentColor = IconPrimary
                         )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { })
-                    {
-                        Icon(
-                            painter = painterResource(Resources.Icon.Search),
-                            contentDescription = "Search",
-                            tint = IconPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    scrolledContainerColor = Surface,
-                    navigationIconContentColor = IconPrimary,
-                    titleContentColor = TextPrimary,
-                    actionIconContentColor = IconPrimary
-                )
-            )
+                    )
+                }
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onEvent(AdminScreenEvent.RequestNavigateToManageProduct(null)) },
+                onClick = {
+                    onEvent(
+                        AdminScreenEvent.RequestNavigateToManageProduct(
+                            null
+                        )
+                    )
+                },
                 containerColor = ButtonPrimary,
                 contentColor = IconPrimary
             ) {
@@ -152,7 +224,9 @@ fun AdminScreenContent(
                                     product = product,
                                     onClick = {
                                         onEvent(
-                                            AdminScreenEvent.RequestNavigateToManageProduct(product.id)
+                                            AdminScreenEvent.RequestNavigateToManageProduct(
+                                                product.id
+                                            )
                                         )
                                     }
                                 )
@@ -170,7 +244,6 @@ fun AdminScreenContent(
         )
     }
 }
-
 
 @Preview
 @Composable
