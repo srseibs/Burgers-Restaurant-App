@@ -12,7 +12,7 @@ interface CustomerRepository {
 
     suspend fun createCustomer(user: FirebaseUser): RequestState<Unit>
 
-    suspend fun readCustomerFlow(): Flow<RequestState<Customer>>
+    fun readCurrentCustomerFlow(): Flow<RequestState<Customer>>
 
     suspend fun updateCustomer(customer: Customer): RequestState<Unit>
 

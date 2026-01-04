@@ -81,7 +81,8 @@ fun HomeScreen(
 
     HomeScreenContent(
         currentUser = currentUser,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        state = state
     )
 
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
@@ -89,7 +90,7 @@ fun HomeScreen(
             HomeScreenCommand.ExitDueToUserSignedOff -> onSignedOut()
 
             is HomeScreenCommand.ShowErrorMessage -> {
-                Toast.makeText(context, command.message, Toast.LENGTH_LONG)
+                Toast.makeText(context, command.message, Toast.LENGTH_LONG).show()
             }
 
             is HomeScreenCommand.NavigateToProfile -> {
@@ -111,6 +112,7 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier,
     currentUser: FirebaseUser? = null,
     onEvent: (HomeScreenEvent) -> Unit,
+    state: HomeState
 ) {
     val navController = rememberNavController()
     val defaultBottomDestination: BottomBarDestination = BottomBarDestination.ProductOverviewScreen
@@ -162,8 +164,14 @@ fun HomeScreenContent(
             displayName = currentUser?.displayName,
             onSignOutClick = { onEvent(HomeScreenEvent.LogoutRequest) },
             onProfileClick = { onEvent(HomeScreenEvent.RequestProfile) },
-            onAdminClick = { onEvent(HomeScreenEvent.RequestAdmin) }
+            onAdminClick = { onEvent(HomeScreenEvent.RequestAdmin) },
+            isAdmin = if (state.isCurrentUserAdmin.isSuccess()) {
+                state.isCurrentUserAdmin.getSuccessData()
+            } else {
+                false
+            }
         )
+
 
         // Box for the Scaffold
         Box(
@@ -298,7 +306,8 @@ private fun Preview() {
     BurgerRestaurantTheme {
         HomeScreenContent(
             currentUser = null,
-            onEvent = {}
+            onEvent = {},
+            state = HomeState()
         )
     }
 }

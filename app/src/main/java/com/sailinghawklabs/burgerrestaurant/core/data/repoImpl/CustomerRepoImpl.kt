@@ -48,7 +48,7 @@ class CustomerRepoImpl() : CustomerRepository {
         }
     }
 
-    override suspend fun readCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
+    override fun readCurrentCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
         try {
             val userId = getCurrentUserId()
             if (userId != null) {
@@ -99,8 +99,8 @@ class CustomerRepoImpl() : CustomerRepository {
                                 phoneNumber = phoneNumber,
                                 address = documentSnapshot.get("address") as String?,
                                 country = countryObject,
-                                profilePictureUrl = documentSnapshot.get("photoUrl") as String?
-
+                                profilePictureUrl = documentSnapshot.get("photoUrl") as String?,
+                                isAdmin = documentSnapshot.get("admin") as Boolean
                             )
                             send(RequestState.Success(customer))
                         } else {

@@ -4,9 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,12 +26,22 @@ class HomeViewModel(
         .onStart {
             getCurrentUser()
         }
+        .combine(isCurrentUserAdmin()) { homeState, isUserAdmin ->
+            homeState.copy(isCurrentUserAdmin = RequestState.Success(isUserAdmin))
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),
             initialValue = HomeState()
         )
 
+    private fun isCurrentUserAdmin(): Flow<Boolean> {
+        return customerRepository.readCurrentCustomerFlow()
+            .map { requestState ->
+                println("requestState: $requestState")
+                requestState is RequestState.Success && requestState.data.isAdmin
+            }
+    }
 
     private fun getCurrentUser() {
         val auth = FirebaseAuth.getInstance()

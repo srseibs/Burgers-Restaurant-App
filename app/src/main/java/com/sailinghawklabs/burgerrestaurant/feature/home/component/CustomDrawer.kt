@@ -42,7 +42,8 @@ fun CustomDrawer(
     onOffersClick: () -> Unit = {},
     onContactUsClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    onAdminClick: () -> Unit = {}
+    onAdminClick: () -> Unit = {},
+    isAdmin: Boolean = false
 ) {
 
     Column(
@@ -114,7 +115,9 @@ fun CustomDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        DrawerItemCard(drawerItem = DrawerItem.AdminPanel, onClick = onAdminClick)
+        if (isAdmin) {
+            DrawerItemCard(drawerItem = DrawerItem.AdminPanel, onClick = onAdminClick)
+        }
         Spacer(modifier = Modifier.weight(1f))
 
     }

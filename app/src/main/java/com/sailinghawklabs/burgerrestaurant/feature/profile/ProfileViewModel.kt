@@ -118,7 +118,7 @@ class ProfileViewModel(
 
             loadCountries()
 
-            customerRepository.readCustomerFlow().collectLatest { requestState ->
+            customerRepository.readCurrentCustomerFlow().collectLatest { requestState ->
                 when {
                     requestState.isSuccess() -> {
                         val fetchedData = requestState.getSuccessData()
