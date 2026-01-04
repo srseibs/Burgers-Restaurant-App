@@ -14,7 +14,10 @@ data class Product(
     val calories: Int?,
     val ingredients: String,
     val price: Double,
-    val productImage: String
+    val productImage: String,
+    val isPopular: Boolean,
+    val isNew: Boolean,
+    val isDiscounted: Boolean
 )
 
 enum class ProductCategory(
@@ -40,7 +43,10 @@ val fakeProducts = listOf(
         calories = 550,
         ingredients = "Beef patty, brioche bun, lettuce, tomato, onion, pickles, special sauce.",
         price = 8.99,
-        productImage = "https://picsum.photos/seed/1/300/300"
+        productImage = "https://picsum.photos/seed/1/300/300",
+        isPopular = true,
+        isNew = false,
+        isDiscounted = false
     ),
     Product(
         id = "2",
@@ -51,7 +57,10 @@ val fakeProducts = listOf(
         calories = 450,
         ingredients = "Grilled chicken breast, flour tortilla, romaine lettuce, caesar dressing, parmesan cheese.",
         price = 7.49,
-        productImage = "https://picsum.photos/seed/2/300/300"
+        productImage = "https://picsum.photos/seed/2/300/300",
+        isPopular = false,
+        isNew = false,
+        isDiscounted = false
     ),
     Product(
         id = "3",
@@ -62,7 +71,10 @@ val fakeProducts = listOf(
         calories = 300,
         ingredients = "Potatoes, vegetable oil, salt.",
         price = 2.99,
-        productImage = "https://picsum.photos/seed/3/300/300"
+        productImage = "https://picsum.photos/seed/3/300/300",
+        isPopular = true,
+        isNew = false,
+        isDiscounted = true
     ),
     Product(
         id = "4",
@@ -73,7 +85,10 @@ val fakeProducts = listOf(
         calories = 150,
         ingredients = "Carbonated water, high fructose corn syrup, natural flavors.",
         price = 1.99,
-        productImage = "https://picsum.photos/seed/4/300/300"
+        productImage = "https://picsum.photos/seed/4/300/300",
+        isPopular = false,
+        isNew = false,
+        isDiscounted = false
     ),
     Product(
         id = "5",
@@ -84,6 +99,9 @@ val fakeProducts = listOf(
         calories = 400,
         ingredients = "Flour, sugar, butter, cocoa powder, eggs, chocolate chips.",
         price = 3.49,
-        productImage = "https://picsum.photos/seed/5/300/300"
+        productImage = "https://picsum.photos/seed/5/300/300",
+        isPopular = true,
+        isNew = true,
+        isDiscounted = false
     )
 )

@@ -50,6 +50,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.CategoryDialog
+import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.component.SelectorSwitch
 import com.sailinghawklabs.burgerrestaurant.feature.component.BurgerTextField
 import com.sailinghawklabs.burgerrestaurant.feature.component.CurrencyVisualTransformation
 import com.sailinghawklabs.burgerrestaurant.feature.component.ErrorCard
@@ -389,6 +390,28 @@ fun ManageProductScreenContent(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         visualTransformation = CurrencyVisualTransformation()
                     )
+
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SelectorSwitch(
+                            label = "New",
+                            state = state.isProductNew,
+                            onStateChange = { onEvent(ManageProductScreenEvent.UpdateProductIsNew) }
+                        )
+                        SelectorSwitch(
+                            label = "Popular",
+                            state = state.isProductPopular,
+                            onStateChange = { onEvent(ManageProductScreenEvent.UpdateProductIsPopular) }
+                        )
+                        SelectorSwitch(
+                            label = "On Sale",
+                            state = state.isProductDiscounted,
+                            onStateChange = { onEvent(ManageProductScreenEvent.UpdateProductIsDiscounted) }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }

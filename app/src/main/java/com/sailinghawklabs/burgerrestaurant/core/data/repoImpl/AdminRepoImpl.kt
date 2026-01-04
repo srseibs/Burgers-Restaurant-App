@@ -33,7 +33,10 @@ class AdminRepoImpl() : AdminRepository {
             calories = getLong("calories")?.toInt(),
             ingredients = getString("ingredients").orEmpty(),
             price = getDouble("price") ?: 0.0,
-            productImage = getString("productImage").orEmpty()
+            productImage = getString("productImage").orEmpty(),
+            isNew = getBoolean("new") ?: false,
+            isPopular = getBoolean("popular") ?: false,
+            isDiscounted = getBoolean("discounted") ?: false
         )
     }
 

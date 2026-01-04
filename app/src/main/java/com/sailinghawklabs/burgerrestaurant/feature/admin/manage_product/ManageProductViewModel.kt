@@ -79,6 +79,10 @@ class ManageProductViewModel(
                                 productDownloadState = RequestState.Success(Unit),
                                 imageUploaderState = RequestState.Success(Unit),
                                 productId = downloadedProductData.id,
+                                isProductNew = downloadedProductData.isNew,
+                                isProductPopular = downloadedProductData.isPopular,
+                                isProductDiscounted = downloadedProductData.isDiscounted
+
                             )
                         }
                     }
@@ -251,6 +255,19 @@ class ManageProductViewModel(
             ManageProductScreenEvent.DeleteExistingProduct -> {
                 deleteProduct(_state.value.productId)
             }
+
+            ManageProductScreenEvent.UpdateProductIsNew -> {
+                _state.update { it.copy(isProductNew = !_state.value.isProductNew) }
+            }
+
+            ManageProductScreenEvent.UpdateProductIsPopular -> {
+                _state.update { it.copy(isProductPopular = !_state.value.isProductPopular) }
+            }
+
+            ManageProductScreenEvent.UpdateProductIsDiscounted -> {
+                _state.update { it.copy(isProductDiscounted = !_state.value.isProductDiscounted) }
+            }
+
         }
     }
 
@@ -293,18 +310,7 @@ class ManageProductViewModel(
                 return@launch
             }
 
-            val currentState = _state.value
-            val updatedProduct = Product(
-                id = currentState.productId,
-                title = currentState.title,
-                description = currentState.description,
-                category = currentState.selectedCategory!!.title,
-                allergyAdvice = currentState.allergyAdvice,
-                ingredients = currentState.ingredients,
-                price = currentState.price,
-                calories = currentState.calories,
-                productImage = currentState.productImageUri
-            )
+            val updatedProduct = createProductFromState(_state.value)
 
             val result = adminRepository.updateProduct(updatedProduct)
 
@@ -352,18 +358,7 @@ class ManageProductViewModel(
             try {
                 _state.update { it.copy(createProductState = RequestState.Loading) }
 
-                val productState = _state.value
-                val productToCreate = Product(
-                    id = productState.productId,
-                    title = productState.title,
-                    description = productState.description,
-                    category = productState.selectedCategory!!.title,
-                    allergyAdvice = productState.allergyAdvice,
-                    ingredients = productState.ingredients,
-                    price = productState.price,
-                    calories = productState.calories,
-                    productImage = productState.productImageUri
-                )
+                val productToCreate = createProductFromState(_state.value)
 
                 adminRepository.createNewProduct(productToCreate)
                 _state.update { it.copy(createProductState = RequestState.Success(Unit)) }
@@ -377,7 +372,24 @@ class ManageProductViewModel(
                 _state.update { it.copy(createProductState = RequestState.Error(message)) }
             }
         }
+    }
 
+    private fun createProductFromState(donorState: ManageProductState): Product {
+        val snapShotOfState = donorState
+        return Product(
+            id = snapShotOfState.productId,
+            title = snapShotOfState.title,
+            description = snapShotOfState.description,
+            category = snapShotOfState.selectedCategory!!.title,
+            allergyAdvice = snapShotOfState.allergyAdvice,
+            ingredients = snapShotOfState.ingredients,
+            price = snapShotOfState.price,
+            calories = snapShotOfState.calories,
+            productImage = snapShotOfState.productImageUri,
+            isPopular = snapShotOfState.isProductPopular,
+            isNew = snapShotOfState.isProductNew,
+            isDiscounted = snapShotOfState.isProductDiscounted
+        )
     }
 
     fun checkIsFormValid(): RequestState<String> {

@@ -23,7 +23,8 @@ data class ManageProductState(
     val calories: Int? = null,
     val allergyAdvice: String = "",
     val ingredients: String = "",
-    val price: Double = 0.0
-
-
+    val price: Double = 0.0,
+    val isProductPopular: Boolean = false,
+    val isProductNew: Boolean = false,
+    val isProductDiscounted: Boolean = false,
 )
