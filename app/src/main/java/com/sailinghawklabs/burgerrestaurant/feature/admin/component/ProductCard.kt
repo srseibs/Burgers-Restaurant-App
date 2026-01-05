@@ -81,7 +81,8 @@ fun ProductCard(
             Text(
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = product.title,
+                text = product.title.uppercase(),
+                fontFamily = oswaldVariableFont,
                 fontSize = AppFontSize.MEDIUM,
                 color = TextPrimary,
                 fontWeight = FontWeight.Medium,

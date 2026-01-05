@@ -375,20 +375,20 @@ class ManageProductViewModel(
     }
 
     private fun createProductFromState(donorState: ManageProductState): Product {
-        val snapShotOfState = donorState
         return Product(
-            id = snapShotOfState.productId,
-            title = snapShotOfState.title,
-            description = snapShotOfState.description,
-            category = snapShotOfState.selectedCategory!!.title,
-            allergyAdvice = snapShotOfState.allergyAdvice,
-            ingredients = snapShotOfState.ingredients,
-            price = snapShotOfState.price,
-            calories = snapShotOfState.calories,
-            productImage = snapShotOfState.productImageUri,
-            isPopular = snapShotOfState.isProductPopular,
-            isNew = snapShotOfState.isProductNew,
-            isDiscounted = snapShotOfState.isProductDiscounted
+            id = donorState.productId,
+            createdAt = donorState.createdAt,
+            title = donorState.title,
+            description = donorState.description,
+            category = donorState.selectedCategory!!.title,
+            allergyAdvice = donorState.allergyAdvice,
+            ingredients = donorState.ingredients,
+            price = donorState.price,
+            calories = donorState.calories,
+            productImage = donorState.productImageUri,
+            isPopular = donorState.isProductPopular,
+            isNew = donorState.isProductNew,
+            isDiscounted = donorState.isProductDiscounted
         )
     }
 

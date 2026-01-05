@@ -3,9 +3,11 @@ package com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import java.util.UUID
+import kotlin.time.Clock
 
 data class ManageProductState(
     val productId: String = UUID.randomUUID().toString(),
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
 
     val imageUploaderState: RequestState<Unit> = RequestState.Idle,
     val productDownloadState: RequestState<Unit> = RequestState.Idle,

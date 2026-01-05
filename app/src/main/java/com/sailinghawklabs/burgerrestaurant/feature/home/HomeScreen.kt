@@ -3,6 +3,7 @@ package com.sailinghawklabs.burgerrestaurant.feature.home
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -78,7 +79,6 @@ fun HomeScreen(
     val context = LocalContext.current
 
 
-
     HomeScreenContent(
         currentUser = currentUser,
         onEvent = viewModel::onEvent,
@@ -101,7 +101,6 @@ fun HomeScreen(
                 onAdminClick()
 
             }
-
         }
     }
 }
@@ -152,12 +151,15 @@ fun HomeScreenContent(
     val animatedRadius by animateDpAsState(
         targetValue = if (drawerState.isOpen()) 40.dp else 0.dp
     )
+    val animatedBackground by animateColorAsState(
+        targetValue = if (drawerState.isOpen()) BrandBrown else Surface
+    )
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BrandBrown)
+            .background(animatedBackground)
     ) {
         CustomDrawer(
             photoUrl = currentUser?.photoUrl.toString(),
@@ -171,7 +173,7 @@ fun HomeScreenContent(
                 false
             }
         )
-
+// https://youtu.be/YOye1vyUd04?si=hAg46T_NtZlN6uYh&t=1
 
         // Box for the Scaffold
         Box(

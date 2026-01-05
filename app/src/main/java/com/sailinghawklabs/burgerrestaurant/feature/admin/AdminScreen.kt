@@ -80,7 +80,6 @@ fun AdminScreenContent(
         containerColor = Surface,
         topBar = {
             AnimatedContent(targetState = searchBarVisible) { visible ->
-// https://youtu.be/urlYyyZH6Eo?si=Bi6P9ne3LnD-2Tgx&t=12278
                 if (visible) {
                     SearchBar(
                         modifier = Modifier
