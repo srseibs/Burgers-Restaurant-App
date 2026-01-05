@@ -5,9 +5,9 @@ import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
-    fun readNewProducts(): Flow<RequestState<List<Product>>>
-    fun readDiscountedProducts(): Flow<RequestState<List<Product>>>
-    fun readPopularProducts(): Flow<RequestState<List<Product>>>
-    fun readProductsByCategory(category: String): Flow<RequestState<List<Product>>>
+    fun readNewProducts(limit: Long = 5): Flow<RequestState<List<Product>>>
+    fun readDiscountedProducts(limit: Long = 5): Flow<RequestState<List<Product>>>
+    fun readPopularProducts(limit: Long = 5): Flow<RequestState<List<Product>>>
+    fun readProductsByCategory(query: String, limit: Long = 10): Flow<RequestState<List<Product>>>
 
 }

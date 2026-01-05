@@ -3,7 +3,6 @@ package com.sailinghawklabs.burgerrestaurant.core.data.repoImpl
 import android.net.Uri
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
@@ -21,23 +20,6 @@ class AdminRepoImpl() : AdminRepository {
 
     companion object {
         private const val PREFIX_SEARCH_END_CHAR = "\uf8ff"
-    }
-
-    private fun DocumentSnapshot.toProduct(): Product {
-        return Product(
-            id = id,
-            title = getString("title").orEmpty(),
-            description = getString("description").orEmpty(),
-            category = getString("category").orEmpty(),
-            allergyAdvice = getString("allergyAdvice").orEmpty(),
-            calories = getLong("calories")?.toInt(),
-            ingredients = getString("ingredients").orEmpty(),
-            price = getDouble("price") ?: 0.0,
-            productImage = getString("productImage").orEmpty(),
-            isNew = getBoolean("new") ?: false,
-            isPopular = getBoolean("popular") ?: false,
-            isDiscounted = getBoolean("discounted") ?: false
-        )
     }
 
     override fun getCurrentUserId() =
@@ -189,6 +171,7 @@ class AdminRepoImpl() : AdminRepository {
         }
     }
 
+    // https://youtu.be/YOye1vyUd04?si=zjvOkIhNG9DJdNYI&t=588
     override fun searchProductByTitle(
         query: String,
         numberOfProducts: Long
