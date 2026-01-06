@@ -5,11 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.ProductRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.model.Product
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -20,17 +24,40 @@ class ProductOverviewViewModel(
 
 
     private val _state = MutableStateFlow(ProductOverviewState())
+
+    // This flow reacts to category changes and triggers the repository call.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val categoryProducts = _state.map { it.selectedCategory?.title ?: "" }
+        .distinctUntilChanged()
+        .flatMapLatest { categoryTitle ->
+            getProductsByCategory(categoryTitle)
+        }
+
     val state = combine(
         getNewProducts(),
         getDiscountedProducts(),
         getPopularProducts(),
+        categoryProducts,
         _state
-    ) { newProducts, discountedProducts, popularProducts, state ->
+    ) { newProducts, discountedProducts, popularProducts, categoryProductsResult, state ->
+
+        val heroCandidatesFromNewProducts = newProducts.getSuccessDataOrNull()
+            ?.sortedByDescending { it.createdAt }
+            ?.take(3)
+            ?: emptyList()
+
+        val heroProductNew = heroCandidatesFromNewProducts.getOrNull(index = state.heroIndex)
+
         state.copy(
             newProducts = newProducts,
             discountedProducts = discountedProducts,
             popularProducts = popularProducts,
+            heroCandidates = heroCandidatesFromNewProducts,
+            categoryProducts = categoryProductsResult, // Use the result from the reactive flow
+            heroProduct = heroProductNew,
+            heroPaused = state.selectedCategory != null
         )
+
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
@@ -40,6 +67,7 @@ class ProductOverviewViewModel(
             popularProducts = RequestState.Loading
         )
     )
+
 
     private val _commands = Channel<ProductOverviewScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
@@ -56,12 +84,20 @@ class ProductOverviewViewModel(
         return productRepository.readPopularProducts()
     }
 
+    private fun getProductsByCategory(query: String): Flow<RequestState<List<Product>>> {
+        return productRepository.readProductsByCategory(query)
+    }
+
     fun onEvent(event: ProductOverviewScreenEvent) {
         when (event) {
             is ProductOverviewScreenEvent.CategorySelected -> {
                 _state.update { productOverviewState ->
                     productOverviewState.copy(selectedCategory = event.category)
                 }
+            }
+
+            is ProductOverviewScreenEvent.ProductClicked -> {
+
             }
         }
     }

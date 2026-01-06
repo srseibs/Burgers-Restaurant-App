@@ -42,6 +42,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.sailinghawklabs.burgerrestaurant.core.data.model.fakeProducts
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.PreviewableAsyncImage
+import com.sailinghawklabs.burgerrestaurant.feature.admin.component.toCalorieLabel
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.feature.util.toCurrencyString
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -193,7 +194,7 @@ private fun MainProductCardPreview() {
     BurgerRestaurantTheme {
         MainProductCard(
             title = fakeProducts[0].title,
-            calories = fakeProducts[0].calories.let { "$it kcal" },
+            calories = fakeProducts[0].calories.toCalorieLabel(),
             imageUrl = fakeProducts[0].productImage,
             price = fakeProducts[0].price.toCurrencyString(),
             paused = false

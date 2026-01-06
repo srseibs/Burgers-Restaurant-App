@@ -6,4 +6,5 @@ sealed interface HomeScreenCommand {
     data object NavigateToProfile : HomeScreenCommand
     data object NavigateToAdmin : HomeScreenCommand
     data class ShowErrorMessage(val message: String) : HomeScreenCommand
+    data object NavigateToProductOverview : HomeScreenCommand
 }

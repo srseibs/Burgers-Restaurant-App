@@ -127,7 +127,7 @@ fun ProductCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = product.calories?.let { "$it kcal" } ?: "",
+                        text = product.calories.toCalorieLabel(),
                         fontSize = AppFontSize.EXTRA_REGULAR,
                         color = TextPrimary,
                         fontFamily = oswaldVariableFont
@@ -204,6 +204,9 @@ fun PreviewableAsyncImage(
     )
 
 }
+
+
+fun Int?.toCalorieLabel() = this?.let { "$it kcal" } ?: ""
 
 
 @Preview

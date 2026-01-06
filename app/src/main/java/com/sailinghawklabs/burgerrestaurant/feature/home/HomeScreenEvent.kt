@@ -5,4 +5,5 @@ sealed interface HomeScreenEvent {
     data object LogoutRequest : HomeScreenEvent
     data object RequestProfile : HomeScreenEvent
     data object RequestAdmin : HomeScreenEvent
+    data object RequestProductOverview : HomeScreenEvent
 }

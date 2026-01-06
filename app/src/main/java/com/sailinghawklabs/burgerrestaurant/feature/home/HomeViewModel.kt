@@ -88,6 +88,12 @@ class HomeViewModel(
                 }
             }
 
+            is HomeScreenEvent.RequestProductOverview -> {
+                viewModelScope.launch {
+                    _commands.send(HomeScreenCommand.NavigateToProductOverview)
+                }
+            }
+
         }
     }
 

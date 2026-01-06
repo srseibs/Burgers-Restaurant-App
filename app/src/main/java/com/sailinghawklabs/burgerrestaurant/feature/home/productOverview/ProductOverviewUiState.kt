@@ -8,8 +8,15 @@ data class ProductOverviewState(
     val newProducts: RequestState<List<Product>> = RequestState.Idle,
     val discountedProducts: RequestState<List<Product>> = RequestState.Idle,
     val popularProducts: RequestState<List<Product>> = RequestState.Idle,
-
-    val selectedCategory: ProductCategory? = null,
     val categoryProducts: RequestState<List<Product>> = RequestState.Idle,
 
-    )
+
+    val heroCandidates: List<Product> = emptyList(),
+    val heroIndex: Int = 0,
+    val heroProduct: Product? = null,
+    val heroPaused: Boolean = true,
+
+
+    val selectedCategory: ProductCategory? = null
+
+)

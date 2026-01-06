@@ -72,7 +72,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     onProfileClick: () -> Unit,
     onSignedOut: () -> Unit,
-    onAdminClick: () -> Unit
+    onAdminClick: () -> Unit,
+    onProductOverviewClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentUser = state.currentUser
@@ -99,7 +100,10 @@ fun HomeScreen(
 
             is HomeScreenCommand.NavigateToAdmin -> {
                 onAdminClick()
+            }
 
+            is HomeScreenCommand.NavigateToProductOverview -> {
+                onProductOverviewClick()
             }
         }
     }
@@ -114,7 +118,8 @@ fun HomeScreenContent(
     state: HomeState
 ) {
     val navController = rememberNavController()
-    val defaultBottomDestination: BottomBarDestination = BottomBarDestination.ProductOverviewScreen
+    val defaultBottomDestination: BottomBarDestination =
+        BottomBarDestination.ProductOverviewScreen
 
     val currentDestination = navController.currentBackStackEntryAsState()
     val selectedBottomDestination by remember(currentDestination.value) {
@@ -263,7 +268,7 @@ fun HomeScreenContent(
                         startDestination = defaultBottomDestination.destination
                     ) {
                         composable<Destination.ProductOverviewScreen> {
-
+                            onEvent(HomeScreenEvent.RequestProductOverview)
                         }
                         composable<Destination.CartScreen> {
 
