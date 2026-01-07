@@ -8,10 +8,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -71,7 +71,7 @@ fun CategoryChip(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(70.dp)
                 .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(12.dp),
             color = BrandBrown,
@@ -96,16 +96,16 @@ fun CategoryChip(
                     fontFamily = oswaldVariableFont,
                     fontWeight = FontWeight.Medium
                 )
-
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
         Image(
+            alignment = Alignment.TopCenter,
             painter = painterResource(id = iconRes),
             contentDescription = title,
             modifier = Modifier
-                .size(70.dp)
-                .offset(y = (-30).dp),
+                .size(60.dp),
             contentScale = ContentScale.Fit
         )
     }

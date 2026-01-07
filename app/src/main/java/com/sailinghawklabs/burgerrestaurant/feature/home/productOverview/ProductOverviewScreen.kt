@@ -76,8 +76,8 @@ fun ProductOverviewScreenContent(
     onEvent: (ProductOverviewScreenEvent) -> Unit,
 ) {
     val heroProduct = state.heroProduct
-    val popularProducts = state.popularProducts.getSuccessDataOrNull() ?: emptyList()
-    val discountedProducts = state.discountedProducts.getSuccessDataOrNull() ?: emptyList()
+    val popularProducts = state.popularProducts
+    val discountedProducts = state.discountedProducts
     val newProducts = state.newProducts.getSuccessDataOrNull() ?: emptyList()
     val categoryProducts = state.categoryProducts
     val selectedCategory = state.selectedCategory
@@ -175,7 +175,95 @@ fun ProductOverviewScreenContent(
                     }
                 )
             }
-
+        } else {
+            item { ProductOverviewSectionHeader("Popular Products") }
+            item {
+                popularProducts.DisplayResult(
+                    onLoading = {
+                        LoadingCard(modifier = Modifier.fillMaxSize())
+                    },
+                    onError = { message ->
+                        InfoCard(
+                            image = Resources.Icon.Bell,
+                            title = "Oops!",
+                            subtitle = message
+                        )
+                    },
+                    onSuccess = { productList ->
+                        val products = productList
+                            .distinctBy { it.id }
+                            .sortedByDescending { it.createdAt }
+                        if (products.isEmpty()) {
+                            InfoCard(
+                                image = Resources.Icon.Bell,
+                                title = "Sorry! Nothing here",
+                                subtitle = "No popular products are found."
+                            )
+                        } else {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                products.forEach { product ->
+                                    ProductCard(
+                                        product = product,
+                                        onClick = {
+                                            onEvent(
+                                                ProductOverviewScreenEvent.ProductClicked(
+                                                    product.id
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+            item { ProductOverviewSectionHeader("Discounted Products") }
+            item {
+                discountedProducts.DisplayResult(
+                    onLoading = {
+                        LoadingCard(modifier = Modifier.fillMaxSize())
+                    },
+                    onError = { message ->
+                        InfoCard(
+                            image = Resources.Icon.Bell,
+                            title = "Oops!",
+                            subtitle = message
+                        )
+                    },
+                    onSuccess = { productList ->
+                        val products = productList
+                            .distinctBy { it.id }
+                            .sortedByDescending { it.createdAt }
+                        if (products.isEmpty()) {
+                            InfoCard(
+                                image = Resources.Icon.Bell,
+                                title = "Sorry! Nothing here",
+                                subtitle = "No products found for this category"
+                            )
+                        } else {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                products.forEach { product ->
+                                    ProductCard(
+                                        product = product,
+                                        onClick = {
+                                            onEvent(
+                                                ProductOverviewScreenEvent.ProductClicked(
+                                                    product.id
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 }

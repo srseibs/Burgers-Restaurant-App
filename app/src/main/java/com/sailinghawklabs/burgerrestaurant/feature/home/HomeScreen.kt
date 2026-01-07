@@ -56,6 +56,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.home.domain.BottomBarDestina
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.CustomDrawerState
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.isOpen
 import com.sailinghawklabs.burgerrestaurant.feature.home.domain.reverse
+import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.ProductOverviewScreen
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.nav.navigateAndDontComeBack
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -72,8 +73,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     onProfileClick: () -> Unit,
     onSignedOut: () -> Unit,
-    onAdminClick: () -> Unit,
-    onProductOverviewClick: () -> Unit
+    onAdminClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentUser = state.currentUser
@@ -103,7 +103,7 @@ fun HomeScreen(
             }
 
             is HomeScreenCommand.NavigateToProductOverview -> {
-                onProductOverviewClick()
+
             }
         }
     }
@@ -268,7 +268,10 @@ fun HomeScreenContent(
                         startDestination = defaultBottomDestination.destination
                     ) {
                         composable<Destination.ProductOverviewScreen> {
-                            onEvent(HomeScreenEvent.RequestProductOverview)
+                            ProductOverviewScreen(
+                                onProductClick = {},
+                                onGotoMainScreen = {}
+                            )
                         }
                         composable<Destination.CartScreen> {
 
