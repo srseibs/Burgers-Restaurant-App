@@ -22,10 +22,10 @@
       <SelectionState runConfigName="ProfilePhotoEditorPrev">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="CategoryDialogPrev">
+      <SelectionState runConfigName="ProductCardPrev">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ProductCardPrev">
+      <SelectionState runConfigName="MainProductCardPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

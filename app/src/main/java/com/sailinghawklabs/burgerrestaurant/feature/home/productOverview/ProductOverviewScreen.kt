@@ -68,8 +68,7 @@ fun ProductOverviewScreen(
 }
 
 
-// https://youtu.be/YOye1vyUd04?si=qoT7L3AaL01vtYGL&t=3326
-
+// https://youtu.be/YOye1vyUd04?si=e2V3z37qdGjhEWRZ&t=4333
 @Composable
 fun ProductOverviewScreenContent(
     state: ProductOverviewState,

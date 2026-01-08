@@ -1,10 +1,13 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.components
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,13 +18,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -52,6 +56,9 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextWhite
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainProductCard(
@@ -64,12 +71,53 @@ fun MainProductCard(
 ) {
     val cardHeight = 220.dp
     val brownFraction = 0.5f
-    val density = LocalDensity.current.density
+    val densityProvider = LocalDensity.current
 
     // Animation values
     val imageOffsetX = remember { Animatable(initialValue = -70f) }
     val imageAlpha = remember { Animatable(initialValue = 0.95f) }
     val imageScale = remember { Animatable(initialValue = 0.98f) }
+
+    LaunchedEffect(paused, imageUrl) {
+        if (paused) {
+            imageOffsetX.snapTo(-25f)
+            imageAlpha.snapTo(1f)
+            imageScale.snapTo(1f)
+            return@LaunchedEffect
+        }
+
+        while (true) {
+            coroutineScope {
+                launch {
+                    imageOffsetX.animateTo(
+                        targetValue = -25f,
+                        animationSpec =
+                            tween(durationMillis = 900, easing = FastOutSlowInEasing)
+                    )
+                }
+                launch {
+                    imageAlpha.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 350)
+                    )
+                }
+            }
+
+            imageScale.snapTo(targetValue = 1.02f)
+            imageScale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+            delay(timeMillis = 5000)
+
+            imageOffsetX.snapTo(90f)
+            imageAlpha.snapTo(0.6f)
+            imageScale.snapTo(0.98f)
+        }
+    }
 
     Card(
         modifier = modifier
@@ -78,8 +126,8 @@ fun MainProductCard(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val seamX = maxWidth * brownFraction
+        // Use a single Box as the layout root. No more BoxWithConstraints.
+        Box(modifier = Modifier.fillMaxSize()) {
             val seamWidth = 26.dp
 
             // Base background - white section that fills the whole card
@@ -98,10 +146,21 @@ fun MainProductCard(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .size(185.dp)
-                    .align(Alignment.Center)
-                    .offset(x = seamX - 82.dp)  // Whoop Whoop -- MAGIC NUMBER! ?!?
+                    // Align the center of the image to our custom seam alignment.
+                    .align(
+                        Alignment { size, space, _ ->// Correctly calculate the position to center the image on the seam
+                            val seamX = (space.width * brownFraction)
+                            val imageCenterOffset = size.width / 2
+                            val x = (seamX - imageCenterOffset + imageCenterOffset).toInt()
+
+                            // Standard vertical alignment logic from 'Alignment.CenterVertically'
+                            val y = (space.height - size.height) / 2
+                            IntOffset(x, y)
+                        }
+                    )
+
                     .graphicsLayer {
-                        translationX = imageOffsetX.value * density
+                        translationX = imageOffsetX.value * densityProvider.density
                         alpha = imageAlpha.value
                         scaleX = imageScale.value
                         scaleY = imageScale.value
@@ -169,24 +228,25 @@ fun MainProductCard(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(seamX)
-                    .offset(x = seamX - seamWidth / 2)
+                    .fillMaxWidth(brownFraction)
+                    .align(Alignment.CenterStart)
+                    .offset(x = -seamWidth / 2) // Center the gradient on the seam
                     .background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(
-                                BrandBrown.copy(Alpha.DISABLED),
-                                Color.Transparent
-                            )
+                                Color.Transparent,
+                                BrandBrown.copy(Alpha.DISABLED)
+                            ),
+                            startX = Float.POSITIVE_INFINITY,
+                            endX = 0f
                         )
                     )
                     .zIndex(3f)
             )
-
         }
     }
-
-
 }
+
 
 @Preview
 @Composable
@@ -201,5 +261,3 @@ private fun MainProductCardPreview() {
         )
     }
 }
-
-
