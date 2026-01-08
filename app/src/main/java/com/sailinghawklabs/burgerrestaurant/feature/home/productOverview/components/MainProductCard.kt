@@ -71,12 +71,13 @@ fun MainProductCard(
 ) {
     val cardHeight = 220.dp
     val brownFraction = 0.5f
-    val densityProvider = LocalDensity.current
+    val density = LocalDensity.current.density
 
     // Animation values
     val imageOffsetX = remember { Animatable(initialValue = -70f) }
     val imageAlpha = remember { Animatable(initialValue = 0.95f) }
     val imageScale = remember { Animatable(initialValue = 0.98f) }
+
 
     LaunchedEffect(paused, imageUrl) {
         if (paused) {
@@ -158,13 +159,31 @@ fun MainProductCard(
                             IntOffset(x, y)
                         }
                     )
+                    .offset(x = (20).dp)
 
                     .graphicsLayer {
-                        translationX = imageOffsetX.value * densityProvider.density
+                        translationX = imageOffsetX.value * density
                         alpha = imageAlpha.value
                         scaleX = imageScale.value
                         scaleY = imageScale.value
                     }
+            )
+
+            // Soft Gradient
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(.15f)
+                    .align(Alignment.Center)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                BrandBrown,
+                                BrandBrown.copy(Alpha.DISABLED)
+                            )
+                        )
+                    )
+                    .zIndex(1f)
             )
 
             // Brown section on the left
@@ -224,25 +243,7 @@ fun MainProductCard(
                 }
             }
 
-            // Soft Gradient
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(brownFraction)
-                    .align(Alignment.CenterStart)
-                    .offset(x = -seamWidth / 2) // Center the gradient on the seam
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                BrandBrown.copy(Alpha.DISABLED)
-                            ),
-                            startX = Float.POSITIVE_INFINITY,
-                            endX = 0f
-                        )
-                    )
-                    .zIndex(3f)
-            )
+
         }
     }
 }

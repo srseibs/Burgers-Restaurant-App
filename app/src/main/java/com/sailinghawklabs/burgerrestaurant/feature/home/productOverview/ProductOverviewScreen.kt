@@ -1,5 +1,7 @@
 package com.sailinghawklabs.burgerrestaurant.feature.home.productOverview
 
+import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,17 +18,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.ProductCard
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.toCalorieLabel
@@ -42,9 +40,6 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -65,6 +60,10 @@ fun ProductOverviewScreen(
             ProductOverviewScreenCommand.NavigateToMainScreen -> onGotoMainScreen()
         }
     }
+
+    BackHandler(enabled = true) {
+        viewModel.onEvent(ProductOverviewScreenEvent.CategorySelected(null))
+    }
 }
 
 
@@ -77,7 +76,6 @@ fun ProductOverviewScreenContent(
     val heroProduct = state.heroProduct
     val popularProducts = state.popularProducts
     val discountedProducts = state.discountedProducts
-    val newProducts = state.newProducts.getSuccessDataOrNull() ?: emptyList()
     val categoryProducts = state.categoryProducts
     val selectedCategory = state.selectedCategory
 
@@ -90,6 +88,7 @@ fun ProductOverviewScreenContent(
     ) {
         // Main Product Card
         item {
+            @SuppressLint("UnusedContentLambdaTargetStateParameter")
             AnimatedContent(
                 targetState = heroProduct?.id,
                 transitionSpec = {
@@ -290,17 +289,5 @@ private fun Preview() {
             state = ProductOverviewState(),
             onEvent = {}
         )
-    }
-}
-
-@Composable
-fun <T> ObserveAsCommand(flow: Flow<T>, onCommand: (T) -> Unit) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(flow, lifecycleOwner.lifecycle) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect(onCommand)
-            }
-        }
     }
 }
