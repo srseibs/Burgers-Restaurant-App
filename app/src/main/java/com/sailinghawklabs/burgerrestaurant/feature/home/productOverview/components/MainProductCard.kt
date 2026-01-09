@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -68,9 +70,7 @@ fun MainProductCard(
     paused: Boolean
 ) {
     val cardHeight = 220.dp
-    val brownFraction = 0.5f
-
-    val seamWidth = 26.dp
+    val brownFraction = 0.45f
     val density = LocalDensity.current.density
 
     // Animation values
@@ -117,6 +117,9 @@ fun MainProductCard(
             imageOffsetX.snapTo(-100f)
             imageAlpha.snapTo(0.6f)
             imageScale.snapTo(0.98f)
+
+            delay(timeMillis = 500)
+
         }
     }
     Card(
@@ -126,117 +129,116 @@ fun MainProductCard(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
+
+        // root box for layering
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-
+            // static background layer
             Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // 1. Static Background Layer (Gradient)
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(1f - brownFraction)
-                        .align(Alignment.CenterEnd)
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    BrandBrown,
-                                    BrandBrown.copy(Alpha.DISABLED),
-                                    Color.Transparent,
-                                    Color.Transparent
-                                )
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(1f - brownFraction)
+                    .align(Alignment.CenterEnd)
+                    .offset(x = (-1).dp) // covers a small line sometimes
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                BrandBrown,
+                                BrandBrown.copy(Alpha.DISABLED),
+                                Color.Transparent,
+                                Color.Transparent
                             )
                         )
-                )
+                    )
+            )
 
+            // animated layer
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    // Occupy only the space NOT taken by the brown fraction
+                    .fillMaxWidth(1f - brownFraction)
+                    .align(Alignment.CenterEnd) // Stick to the right
+                    .graphicsLayer {
+                        // Animation transformations
+                        translationX = imageOffsetX.value * density
+                        alpha = imageAlpha.value
+                        scaleX = imageScale.value
+                        scaleY = imageScale.value
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                PreviewableAsyncImage(
+                    model = ImageRequest.Builder(context = LocalPlatformContext.current)
+                        .data(imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Product Image",
+                    previewImage = R.drawable.iced_tea_nobg,
+                    previewTint = Color.Unspecified,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(185.dp)
+                )
+            }
+            // 3. Top Layer (Left Brown Info Panel)
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Start
+            ) {
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth(brownFraction)
                         .fillMaxHeight()
-                        // Occupy only the space NOT taken by the brown fraction
-                        .fillMaxWidth(1f - brownFraction)
-                        .align(Alignment.CenterEnd) // Stick to the right
-                        .graphicsLayer {
-                            // Animation transformations
-                            translationX = imageOffsetX.value * density
-                            alpha = imageAlpha.value
-                            scaleX = imageScale.value
-                            scaleY = imageScale.value
-                        },
-                    contentAlignment = Alignment.Center
+                        .background(BrandBrown)
                 ) {
-                    PreviewableAsyncImage(
-                        model = ImageRequest.Builder(context = LocalPlatformContext.current)
-                            .data(imageUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Product Image",
-                        previewImage = R.drawable.iced_tea_nobg,
-                        previewTint = Color.Unspecified,
-                        contentScale = ContentScale.Fit,
+                    Column(
                         modifier = Modifier
-                            .size(185.dp)
-                    )
-                }
-                // 3. Top Layer (Left Brown Info Panel)
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(brownFraction)
-                            .fillMaxHeight()
-                            .background(BrandBrown)
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.Center
+                        Text(
+                            text = title,
+                            color = TextWhite,
+                            fontSize = AppFontSize.LARGE,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            fontFamily = oswaldVariableFont,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 35.sp
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                text = title,
-                                color = TextWhite,
-                                fontSize = AppFontSize.LARGE,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                fontFamily = oswaldVariableFont,
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 35.sp
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                painter = painterResource(Resources.Icon.Flame),
+                                contentDescription = "Flame Icon",
+                                tint = Color.Unspecified
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    painter = painterResource(Resources.Icon.Flame),
-                                    contentDescription = "Flame Icon",
-                                    tint = Color.Unspecified
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = calories,
-                                    color = TextWhite.copy(0.65f),
-                                    fontSize = AppFontSize.EXTRA_REGULAR,
-                                    fontFamily = oswaldVariableFont,
-                                    fontWeight = FontWeight.Medium,
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = price,
-                                color = BrandYellow,
-                                fontSize = AppFontSize.REGULAR,
+                                text = calories,
+                                color = TextWhite.copy(0.65f),
+                                fontSize = AppFontSize.EXTRA_REGULAR,
                                 fontFamily = oswaldVariableFont,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = price,
+                            color = BrandYellow,
+                            fontSize = AppFontSize.REGULAR,
+                            fontFamily = oswaldVariableFont,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
             }
