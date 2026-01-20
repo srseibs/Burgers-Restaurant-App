@@ -115,8 +115,8 @@ fun MainProductCard(
             delay(timeMillis = 5000)
 
             imageOffsetX.snapTo(-100f)
-            imageAlpha.snapTo(0.6f)
-            imageScale.snapTo(0.98f)
+            imageAlpha.snapTo(0.2f)
+            imageScale.snapTo(0.8f)
 
             delay(timeMillis = 500)
 
