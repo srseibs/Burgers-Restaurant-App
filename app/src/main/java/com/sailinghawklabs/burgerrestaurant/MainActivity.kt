@@ -18,3 +18,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+//  https://youtu.be/xPzS0Gih_IU?si=tYESqYGLkl9ejujI&t=404
