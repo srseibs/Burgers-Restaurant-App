@@ -33,4 +33,7 @@ sealed interface Destination {
 
     @Serializable
     data class ManageProductScreen(val productId: String?) : Destination
+
+    @Serializable
+    data class ProductDetailsScreen(val productId: String) : Destination
 }

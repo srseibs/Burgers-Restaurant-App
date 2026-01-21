@@ -10,6 +10,8 @@ import com.sailinghawklabs.burgerrestaurant.feature.admin.AdminScreen
 import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.ManageProductScreen
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthScreen
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeScreen
+import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.ProductOverviewScreen
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.ProductDetailsScreen
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileScreen
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashScreen
 
@@ -53,6 +55,9 @@ fun Navigator(
                 },
                 onAdminClick = {
                     navController.navigate(Destination.AdminScreen)
+                },
+                onDetailsClick = { productId ->
+                    navController.navigate(Destination.ProductDetailsScreen(productId))
                 }
             )
         }
@@ -85,15 +90,25 @@ fun Navigator(
                 }
             )
         }
-//
-//        composable<Destination.ProductOverviewScreen> {
-//            ProductOverviewScreen(
-//                onProductClick = {},
-//                onGotoMainScreen = {
-//                    navController.navigateAndDontComeBack(Destination.HomeGraph)
-//                }
-//            )
-//        }
+
+        composable<Destination.ProductOverviewScreen> {
+            ProductOverviewScreen(
+                onProductClick = {
+                    navController.navigate(Destination.ProductDetailsScreen(it))
+                },
+                onGotoMainScreen = {
+                    navController.navigateAndDontComeBack(Destination.HomeGraph)
+                }
+            )
+        }
+
+        composable<Destination.ProductDetailsScreen> {
+            ProductDetailsScreen(
+                onGotoMainScreen = {
+                    navController.navigateAndDontComeBack(Destination.HomeGraph)
+                }
+            )
+        }
     }
 
 }

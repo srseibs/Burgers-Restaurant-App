@@ -97,9 +97,9 @@ class ProductOverviewViewModel(
         }
     }
 
-
     private val _commands = Channel<ProductOverviewScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
+
 
     private fun getNewProducts(): Flow<RequestState<List<Product>>> {
         return productRepository.readNewProducts()
@@ -126,7 +126,7 @@ class ProductOverviewViewModel(
             }
 
             is ProductOverviewScreenEvent.ProductClicked -> {
-
+                _commands.trySend(ProductOverviewScreenCommand.NavigateToProductDetailsScreen(event.productId))
             }
         }
     }

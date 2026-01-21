@@ -67,7 +67,8 @@ fun MainProductCard(
     calories: String,
     price: String,
     imageUrl: String,
-    paused: Boolean
+    paused: Boolean,
+    onClick: () -> Unit,
 ) {
     val cardHeight = 220.dp
     val brownFraction = 0.45f
@@ -127,7 +128,8 @@ fun MainProductCard(
             .fillMaxWidth()
             .height(cardHeight),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        onClick = onClick
     ) {
 
         // root box for layering
@@ -256,7 +258,8 @@ private fun MainProductCardPreview() {
             calories = fakeProducts[0].calories.toCalorieLabel(),
             imageUrl = fakeProducts[0].productImage,
             price = fakeProducts[0].price.toCurrencyString(),
-            paused = false
+            paused = false,
+            onClick = {}
         )
     }
 }

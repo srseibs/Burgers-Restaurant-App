@@ -5,6 +5,7 @@ sealed interface HomeScreenCommand {
     data object ExitDueToUserSignedOff : HomeScreenCommand
     data object NavigateToProfile : HomeScreenCommand
     data object NavigateToAdmin : HomeScreenCommand
-    data class ShowErrorMessage(val message: String) : HomeScreenCommand
     data object NavigateToProductOverview : HomeScreenCommand
+    data class ShowErrorMessage(val message: String) : HomeScreenCommand
+    data class NavigateToProductDetails(val productId: String) : HomeScreenCommand
 }

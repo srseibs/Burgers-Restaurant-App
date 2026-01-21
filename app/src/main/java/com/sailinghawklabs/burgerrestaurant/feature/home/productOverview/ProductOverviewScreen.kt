@@ -58,6 +58,9 @@ fun ProductOverviewScreen(
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
             ProductOverviewScreenCommand.NavigateToMainScreen -> onGotoMainScreen()
+            is ProductOverviewScreenCommand.NavigateToProductDetailsScreen -> onProductClick(
+                command.productId
+            )
         }
     }
 
@@ -66,8 +69,6 @@ fun ProductOverviewScreen(
     }
 }
 
-
-// https://youtu.be/YOye1vyUd04?si=e2V3z37qdGjhEWRZ&t=4333
 @Composable
 fun ProductOverviewScreenContent(
     state: ProductOverviewState,
@@ -102,7 +103,8 @@ fun ProductOverviewScreenContent(
                         calories = product.calories.toCalorieLabel(),
                         price = product.price.toCurrencyString(),
                         imageUrl = product.productImage,
-                        paused = state.heroPaused
+                        paused = state.heroPaused,
+                        onClick = { onEvent(ProductOverviewScreenEvent.ProductClicked(product.id)) }
                     )
                 } ?: LoadingCard(modifier = Modifier.fillMaxSize())
             }
@@ -161,9 +163,7 @@ fun ProductOverviewScreenContent(
                                         product = product,
                                         onClick = {
                                             onEvent(
-                                                ProductOverviewScreenEvent.ProductClicked(
-                                                    product.id
-                                                )
+                                                ProductOverviewScreenEvent.ProductClicked(product.id)
                                             )
                                         }
                                     )

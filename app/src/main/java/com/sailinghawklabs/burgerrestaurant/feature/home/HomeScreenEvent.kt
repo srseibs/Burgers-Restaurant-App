@@ -6,4 +6,5 @@ sealed interface HomeScreenEvent {
     data object RequestProfile : HomeScreenEvent
     data object RequestAdmin : HomeScreenEvent
     data object RequestProductOverview : HomeScreenEvent
+    data class RequestProductDetails(val productId: String) : HomeScreenEvent
 }

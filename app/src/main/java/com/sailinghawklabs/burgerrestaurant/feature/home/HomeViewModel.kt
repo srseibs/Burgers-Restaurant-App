@@ -94,6 +94,12 @@ class HomeViewModel(
                 }
             }
 
+            is HomeScreenEvent.RequestProductDetails -> {
+                viewModelScope.launch {
+                    _commands.send(HomeScreenCommand.NavigateToProductDetails(event.productId))
+                }
+
+            }
         }
     }
 

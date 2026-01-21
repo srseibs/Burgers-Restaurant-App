@@ -47,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.google.firebase.auth.FirebaseUser
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
@@ -73,7 +74,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     onProfileClick: () -> Unit,
     onSignedOut: () -> Unit,
-    onAdminClick: () -> Unit
+    onAdminClick: () -> Unit,
+    onDetailsClick: (productId: String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentUser = state.currentUser
@@ -100,6 +102,10 @@ fun HomeScreen(
 
             is HomeScreenCommand.NavigateToAdmin -> {
                 onAdminClick()
+            }
+
+            is HomeScreenCommand.NavigateToProductDetails -> {
+                onDetailsClick(command.productId)
             }
 
             is HomeScreenCommand.NavigateToProductOverview -> {
@@ -178,7 +184,6 @@ fun HomeScreenContent(
                 false
             }
         )
-// https://youtu.be/YOye1vyUd04?si=hAg46T_NtZlN6uYh&t=1
 
         // Box for the Scaffold
         Box(
@@ -269,10 +274,19 @@ fun HomeScreenContent(
                     ) {
                         composable<Destination.ProductOverviewScreen> {
                             ProductOverviewScreen(
-                                onProductClick = {},
+                                onProductClick = { productId ->
+                                    println("productId: $productId")
+                                    onEvent(HomeScreenEvent.RequestProductDetails(productId))
+                                },
                                 onGotoMainScreen = {}
                             )
                         }
+
+                        composable<Destination.ProductDetailsScreen> {
+                            val productId = it.toRoute<Destination.ProductDetailsScreen>().productId
+                            onEvent(HomeScreenEvent.RequestProductDetails(productId))
+                        }
+
                         composable<Destination.CartScreen> {
 
                         }
