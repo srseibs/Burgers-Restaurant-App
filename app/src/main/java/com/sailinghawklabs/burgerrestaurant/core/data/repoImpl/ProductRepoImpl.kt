@@ -99,4 +99,30 @@ class ProductRepoImpl() : ProductRepository {
             )
         }
     }
+
+    override fun readProductById(productId: String): Flow<RequestState<Product>> = channelFlow {
+        try {
+            send(RequestState.Loading)
+            val database = Firebase.firestore
+            database.collection("products")
+                .document(productId)
+                .snapshots()
+                .collectLatest { snapshots ->
+                    if (!snapshots.exists()) {
+                        send(RequestState.Error(message = "Product not found"))
+                        return@collectLatest
+                    }
+                    val product = snapshots
+                        .toProduct()
+                    send(RequestState.Success(data = product))
+                }
+
+        } catch (e: Exception) {
+            send(
+                RequestState.Error(
+                    message = "Error reading product by ID from database: ${e.message}"
+                )
+            )
+        }
+    }
 }

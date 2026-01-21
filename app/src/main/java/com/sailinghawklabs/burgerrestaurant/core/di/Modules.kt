@@ -18,6 +18,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.admin.manage_product.ManageP
 import com.sailinghawklabs.burgerrestaurant.feature.auth.AuthViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.HomeViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.ProductOverviewViewModel
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.ProductDetailsViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.profile.ProfileViewModel
 import com.sailinghawklabs.burgerrestaurant.feature.splash.SplashViewModel
 import kotlinx.serialization.json.Json
@@ -71,6 +72,8 @@ val appModule = module {
     viewModel { ManageProductViewModel(adminRepository = get(), savedStateHandle = get()) }
     viewModel { AdminViewModel(adminRepository = get()) }
     viewModel { ProductOverviewViewModel(productRepository = get()) }
+    viewModel { ProductDetailsViewModel(productRepository = get(), savedStateHandle = get()) }
+
 
     single {
         GoogleUiClient(

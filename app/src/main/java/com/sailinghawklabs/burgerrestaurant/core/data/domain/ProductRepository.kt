@@ -9,5 +9,6 @@ interface ProductRepository {
     fun readDiscountedProducts(limit: Long = 5): Flow<RequestState<List<Product>>>
     fun readPopularProducts(limit: Long = 5): Flow<RequestState<List<Product>>>
     fun readProductsByCategory(query: String, limit: Long = 10): Flow<RequestState<List<Product>>>
+    fun readProductById(productId: String): Flow<RequestState<Product>>
 
 }
