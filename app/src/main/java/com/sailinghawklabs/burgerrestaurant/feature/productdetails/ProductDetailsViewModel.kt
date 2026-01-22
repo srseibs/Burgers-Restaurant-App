@@ -3,8 +3,12 @@ package com.sailinghawklabs.burgerrestaurant.feature.productdetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.ProductRepository
+import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
+import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -22,6 +26,8 @@ class ProductDetailsViewModel(
     private val _state = MutableStateFlow(ProductDetailsState())
     val state = _state
         .onStart {
+            val productId = savedStateHandle.toRoute<Destination.ProductDetailsScreen>().productId
+            getProductById(productId)
         }
         .stateIn(
             scope = viewModelScope,
@@ -34,6 +40,10 @@ class ProductDetailsViewModel(
 
     private fun getProductById(productId: String) {
         viewModelScope.launch {
+            _state.update {
+                it.copy(product = RequestState.Loading)
+            }
+            delay(2000)
             productRepository.readProductById(productId).collectLatest { requestState ->
                 _state.update {
                     it.copy(product = requestState)
@@ -54,7 +64,11 @@ class ProductDetailsViewModel(
 
     fun onEvent(event: ProductDetailsScreenEvent) {
         when (event) {
-            ProductDetailsScreenEvent.RequestNavigateBack -> {}
+            ProductDetailsScreenEvent.RequestNavigateBack -> {
+                viewModelScope.launch {
+                    _commands.send(ProductDetailsScreenCommand.NavigateBack)
+                }
+            }
             ProductDetailsScreenEvent.RequestAddToCart -> {}
 
 
