@@ -215,7 +215,7 @@ fun ProductDetailsScreenContent(
     }
 }
 
-// https://youtu.be/xPzS0Gih_IU?si=hxYmbh9SS0cIsSxL&t=3420
+
 @Preview
 @Composable
 private fun Preview() {
