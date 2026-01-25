@@ -46,8 +46,8 @@ import coil3.request.crossfade
 import com.sailinghawklabs.burgerrestaurant.R
 import com.sailinghawklabs.burgerrestaurant.core.data.model.fakeProducts
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.PreviewableAsyncImage
-import com.sailinghawklabs.burgerrestaurant.feature.admin.component.toCalorieLabel
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
+import com.sailinghawklabs.burgerrestaurant.feature.util.toCalorieLabel
 import com.sailinghawklabs.burgerrestaurant.feature.util.toCurrencyString
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BrandBrown

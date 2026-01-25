@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sailinghawklabs.burgerrestaurant.core.data.model.ProductCategory
 import com.sailinghawklabs.burgerrestaurant.feature.admin.component.ProductCard
-import com.sailinghawklabs.burgerrestaurant.feature.admin.component.toCalorieLabel
 import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
@@ -35,6 +34,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.compone
 import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.components.MainProductCard
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
+import com.sailinghawklabs.burgerrestaurant.feature.util.toCalorieLabel
 import com.sailinghawklabs.burgerrestaurant.feature.util.toCurrencyString
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme

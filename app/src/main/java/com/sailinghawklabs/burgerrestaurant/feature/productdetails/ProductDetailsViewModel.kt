@@ -22,12 +22,11 @@ class ProductDetailsViewModel(
     private val productRepository: ProductRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    private val productId = savedStateHandle.toRoute<Destination.ProductDetailsScreen>().productId
     private val _state = MutableStateFlow(ProductDetailsState())
     val state = _state
         .onStart {
-            val productId = savedStateHandle.toRoute<Destination.ProductDetailsScreen>().productId
-            getProductById(productId)
+            getProductById()
         }
         .stateIn(
             scope = viewModelScope,
@@ -37,8 +36,9 @@ class ProductDetailsViewModel(
 
     private val _commands = Channel<ProductDetailsScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
+    // https://youtu.be/xPzS0Gih_IU?si=3fOR9foYue7SZ488&t=1717
 
-    private fun getProductById(productId: String) {
+    private fun getProductById() {
         viewModelScope.launch {
             _state.update {
                 it.copy(product = RequestState.Loading)

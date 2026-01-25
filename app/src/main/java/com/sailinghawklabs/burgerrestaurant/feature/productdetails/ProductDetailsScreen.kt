@@ -1,12 +1,16 @@
 package com.sailinghawklabs.burgerrestaurant.feature.productdetails
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,9 +37,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.sailinghawklabs.burgerrestaurant.core.data.model.fakeProducts
 import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
+import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.DetailsBottomButtons
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.ProductDetailsCard
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.QuantityStepper
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
@@ -102,7 +111,14 @@ fun ProductDetailsScreenContent(
                         )
                     }
                 },
-                actions = {},
+                actions = {
+                    QuantityStepper(
+                        quantity = state.quantity,
+                        onIncrement = { onEvent(ProductDetailsScreenEvent.IncrementQuantity) },
+                        onDecrement = { onEvent(ProductDetailsScreenEvent.DecrementQuantity) }
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
                     scrolledContainerColor = Surface,
@@ -146,7 +162,6 @@ fun ProductDetailsScreenContent(
                             contentDescription = "Product Image",
                             contentScale = ContentScale.FillHeight,
                             modifier = Modifier
-//                                .fillMaxWidth()
                                 .height(250.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .border(
@@ -156,22 +171,58 @@ fun ProductDetailsScreenContent(
                                 )
                         )
 
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentPadding = PaddingValues(vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item {
+                                ProductDetailsCard(
+                                    title = product.title,
+                                    description = product.description,
+                                    calories = product.calories,
+                                    price = product.price,
+                                    allergyAdvice = product.allergyAdvice,
+                                    ingredients = product.ingredients
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                DetailsBottomButtons(
+                                    onFavoriteClick = {
+                                        onEvent(ProductDetailsScreenEvent.ToggleFavorite)
+                                    },
+                                    onAddToCartClick = {
+                                        onEvent(ProductDetailsScreenEvent.RequestAddToCart)
+                                    },
+                                    onBuyNowClick = {
+                                        onEvent(ProductDetailsScreenEvent.RequestBuyNow)
+                                    }
+                                )
+                            }
+                        }
+                        PrimaryButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            icon = painterResource(Resources.Icon.Book),
+                            text = "Browse for More",
+                            enabled = true,
+                            onClick = {}
+                        )
                     }
                 }
             )
-
         }
-
     }
 }
 
+// https://youtu.be/xPzS0Gih_IU?si=hxYmbh9SS0cIsSxL&t=3420
 @Preview
 @Composable
 private fun Preview() {
     BurgerRestaurantTheme {
         ProductDetailsScreenContent(
             state = ProductDetailsState(
-                product = RequestState.Loading
+                product = RequestState.Success(fakeProducts.first())
             ),
             onEvent = {}
         )
