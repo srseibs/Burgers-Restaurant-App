@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
 import com.google.firebase.storage.FirebaseStorage
@@ -21,14 +22,20 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.tasks.await
 
+
 class CustomerRepoImpl() : CustomerRepository {
+    companion object {
+        private const val CUSTOMER_COLLECTION = "customer"
+        private const val CART_SUBCOLLECTION = "cart"
+        private const val FAVORITES_SUBCOLLECTION = "favorite"
+    }
 
     override fun getCurrentUserId(): String? = FirebaseAuth.getInstance().currentUser?.uid
 
 
     override suspend fun createCustomer(user: FirebaseUser): RequestState<Unit> {
         return try {
-            val customerCollection = Firebase.firestore.collection("customer")
+            val customerCollection = Firebase.firestore.collection(CUSTOMER_COLLECTION)
             val docRef = customerCollection.document(user.uid)
             val snapshot = docRef.get().await()
 
@@ -53,7 +60,7 @@ class CustomerRepoImpl() : CustomerRepository {
             val userId = getCurrentUserId()
             if (userId != null) {
                 val database = Firebase.firestore
-                database.collection("customer")
+                database.collection(CUSTOMER_COLLECTION)
                     .document(userId)
                     .snapshots()
                     .collectLatest { documentSnapshot ->
@@ -121,7 +128,7 @@ class CustomerRepoImpl() : CustomerRepository {
             val userId = getCurrentUserId()
             if (userId != null) {
                 val firestore = Firebase.firestore
-                val customerCollection = firestore.collection("customer")
+                val customerCollection = firestore.collection(CUSTOMER_COLLECTION)
                 val existingCustomer = customerCollection
                     .document(customer.id)
                     .get()
@@ -180,7 +187,7 @@ class CustomerRepoImpl() : CustomerRepository {
     override suspend fun updateProfilePictureUrl(url: String): RequestState<Unit> = try {
         val uid = getCurrentUserId() ?: return RequestState.Error("User not authenticated")
 
-        Firebase.firestore.collection("customer")
+        Firebase.firestore.collection(CUSTOMER_COLLECTION)
             .document(uid)
             .update("photoProfileUrl", url)
             .await()
@@ -230,5 +237,108 @@ class CustomerRepoImpl() : CustomerRepository {
         RequestState.Success(url)
     } catch (e: Exception) {
         RequestState.Error("Error uploading profile photo: ${e.message}")
+    }
+
+
+    override suspend fun addToCart(
+        productId: String,
+        quantityToAdd: Int
+    ): RequestState<Unit> {
+        return try {
+            val uid = getCurrentUserId() ?: return RequestState.Error("Current user not available")
+            if (productId.isBlank()) return RequestState.Error("Product ID cannot be blank")
+            if (quantityToAdd <= 0) return RequestState.Error("Quantity must be at least 1")
+
+            val cartDocumentRef = Firebase.firestore
+                .collection(CUSTOMER_COLLECTION)
+                .document(uid)
+                .collection(CART_SUBCOLLECTION)
+                .document(productId)
+
+            Firebase.firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(cartDocumentRef)
+                if (snapshot.exists()) {
+                    transaction.update(
+                        cartDocumentRef,
+                        mapOf(
+                            "quantity" to FieldValue.increment(quantityToAdd.toLong()),
+                            "updatedAt" to FieldValue.serverTimestamp()
+                        )
+                    )
+
+                } else {
+                    transaction.set(
+                        cartDocumentRef,
+                        mapOf(
+                            "productId" to productId,
+                            "quantity" to quantityToAdd,
+                            "createdAt" to FieldValue.serverTimestamp(),
+                            "updatedAt" to FieldValue.serverTimestamp()
+                        )
+                    )
+                }
+                Unit
+            }.await()
+            RequestState.Success(Unit)
+
+        } catch (e: Exception) {
+            RequestState.Error("Failed to add item to cart: ${e.message}")
+        }
+    }
+
+    override suspend fun toggleFavorite(productId: String): RequestState<Boolean> {
+        return try {
+            val uid = getCurrentUserId() ?: return RequestState.Error("Current user not available")
+            if (productId.isBlank()) return RequestState.Error("Product ID cannot be blank")
+
+            val favoriteDocumentRef = Firebase.firestore
+                .collection(CUSTOMER_COLLECTION)
+                .document(uid)
+                .collection(FAVORITES_SUBCOLLECTION)
+                .document(productId)
+
+            val isFavoriteToggle = Firebase.firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(favoriteDocumentRef)
+                if (snapshot.exists()) {
+                    transaction.delete(favoriteDocumentRef)
+                    false
+                } else {
+                    transaction.set(
+                        favoriteDocumentRef,
+                        mapOf(
+                            "productId" to productId,
+                            "createdAt" to FieldValue.serverTimestamp()
+                        )
+                    )
+                    true
+                }
+
+            }.await()
+
+            RequestState.Success(isFavoriteToggle)
+
+        } catch (e: Exception) {
+            RequestState.Error("Failed to toggle favorite: ${e.message}")
+        }
+    }
+
+    override suspend fun isFavorite(productId: String): RequestState<Boolean> {
+        return try {
+            val uid = getCurrentUserId() ?: return RequestState.Error("Current user not available")
+            if (productId.isBlank()) return RequestState.Error("Product ID cannot be blank")
+
+            val favoriteSnapshot = Firebase.firestore
+                .collection(CUSTOMER_COLLECTION)
+                .document(uid)
+                .collection(FAVORITES_SUBCOLLECTION)
+                .document(productId)
+                .get()
+                .await()
+
+            RequestState.Success(favoriteSnapshot.exists())
+
+        } catch (e: Exception) {
+            RequestState.Error("Failed read Favorite state for this product: ${e.message}")
+        }
     }
 }

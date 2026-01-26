@@ -25,4 +25,13 @@ interface CustomerRepository {
 
     suspend fun signOut(): RequestState<Unit>
 
+    // Cart functions
+    suspend fun addToCart(
+        productId: String,
+        quantityToAdd: Int
+    ): RequestState<Unit>
+
+    suspend fun toggleFavorite(productId: String): RequestState<Boolean>
+    suspend fun isFavorite(productId: String): RequestState<Boolean>
+
 }
