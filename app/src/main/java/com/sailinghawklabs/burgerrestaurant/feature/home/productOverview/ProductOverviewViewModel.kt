@@ -73,6 +73,7 @@ class ProductOverviewViewModel(
     )
 
     // this causes the heroIndex to slowly cycle through the candidates, unless paused
+    // It seems like this should be in the Screen....
     init {
         viewModelScope.launch {
             // Create a flow that only emits when the inputs to our animation logic change.

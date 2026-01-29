@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -55,9 +51,6 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -75,7 +68,9 @@ fun ProductDetailsScreen(
     ObserveAsCommand(flow = viewModel.commandsForScreen) { command ->
         when (command) {
             ProductDetailsScreenCommand.NavigateBack -> onGotoMainScreen()
-
+            is ProductDetailsScreenCommand.ShowMessage -> {
+                // TODO: Show a Snackbar with the message
+            }
         }
     }
 }
@@ -189,6 +184,7 @@ fun ProductDetailsScreenContent(
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 DetailsBottomButtons(
+                                    isFavorite = state.isFavorite,
                                     onFavoriteClick = {
                                         onEvent(ProductDetailsScreenEvent.ToggleFavorite)
                                     },
@@ -226,17 +222,5 @@ private fun Preview() {
             ),
             onEvent = {}
         )
-    }
-}
-
-@Composable
-fun <T> ObserveAsCommand(flow: Flow<T>, onCommand: (T) -> Unit) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(flow, lifecycleOwner.lifecycle) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect(onCommand)
-            }
-        }
     }
 }

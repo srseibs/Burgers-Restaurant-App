@@ -65,15 +65,40 @@ val appModule = module {
     single<ProductRepository> { ProductRepoImpl() }
 
 
-    viewModel { AuthViewModel(customerRepository = get(), googleAuthUiClient = get()) }
-    viewModel { SplashViewModel(googleAuthUiClient = get()) }
-    viewModel { HomeViewModel(customerRepository = get()) }
-    viewModel { ProfileViewModel(customerRepository = get(), countryRepository = get()) }
-    viewModel { ManageProductViewModel(adminRepository = get(), savedStateHandle = get()) }
-    viewModel { AdminViewModel(adminRepository = get()) }
-    viewModel { ProductOverviewViewModel(productRepository = get()) }
-    viewModel { ProductDetailsViewModel(productRepository = get(), savedStateHandle = get()) }
-
+    viewModel {
+        AuthViewModel(customerRepository = get(), googleAuthUiClient = get())
+    }
+    viewModel {
+        SplashViewModel(googleAuthUiClient = get())
+    }
+    viewModel {
+        HomeViewModel(customerRepository = get())
+    }
+    viewModel {
+        ProfileViewModel(
+            customerRepository = get(),
+            countryRepository = get()
+        )
+    }
+    viewModel {
+        ManageProductViewModel(
+            adminRepository = get(),
+            savedStateHandle = get()
+        )
+    }
+    viewModel {
+        AdminViewModel(adminRepository = get())
+    }
+    viewModel {
+        ProductOverviewViewModel(productRepository = get())
+    }
+    viewModel {
+        ProductDetailsViewModel(
+            customerRepository = get(),
+            productRepository = get(),
+            savedStateHandle = get()
+        )
+    }
 
     single {
         GoogleUiClient(

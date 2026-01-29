@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
 @Composable
 fun DetailsBottomButtons(
     modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
     onFavoriteClick: () -> Unit,
     onAddToCartClick: () -> Unit,
     onBuyNowClick: () -> Unit
@@ -47,9 +49,15 @@ fun DetailsBottomButtons(
             border = BorderStroke(1.dp, BorderIdle)
         ) {
             Icon(
-                painter = painterResource(Resources.Icon.Heart),
+                painter = painterResource(
+                    if (isFavorite)
+                        Resources.Icon.HeartFilled
+                    else
+                        Resources.Icon.Heart
+                ),
                 contentDescription = "Heart Icon",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
+                tint = if (isFavorite) Color.Red else Color.Unspecified
             )
         }
         Button(
@@ -112,7 +120,8 @@ private fun DetailsBottomButtonsPrev() {
         DetailsBottomButtons(
             onFavoriteClick = {},
             onAddToCartClick = {},
-            onBuyNowClick = {}
+            onBuyNowClick = {},
+            isFavorite = true
         )
     }
 }

@@ -18,8 +18,12 @@ import com.sailinghawklabs.burgerrestaurant.core.data.model.Customer
 import com.sailinghawklabs.burgerrestaurant.core.data.model.PhoneNumber
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.tasks.await
 
 
@@ -242,6 +246,7 @@ class CustomerRepoImpl() : CustomerRepository {
 
     override suspend fun addToCart(
         productId: String,
+        productTitle: String,
         quantityToAdd: Int
     ): RequestState<Unit> {
         return try {
@@ -271,6 +276,7 @@ class CustomerRepoImpl() : CustomerRepository {
                         cartDocumentRef,
                         mapOf(
                             "productId" to productId,
+                            "title" to productTitle,
                             "quantity" to quantityToAdd,
                             "createdAt" to FieldValue.serverTimestamp(),
                             "updatedAt" to FieldValue.serverTimestamp()
@@ -340,5 +346,35 @@ class CustomerRepoImpl() : CustomerRepository {
         } catch (e: Exception) {
             RequestState.Error("Failed read Favorite state for this product: ${e.message}")
         }
+    }
+
+
+    override fun readFavoriteIds(): Flow<RequestState<Set<String>>> {
+        val uid = getCurrentUserId()
+
+        // 1. Handle the "No User" case by returning an immediate error flow
+        if (uid.isNullOrBlank()) {
+            return flowOf(RequestState.Error("Current user not available"))
+        }
+
+        // 2. Build the reactive chain
+        return Firebase.firestore
+            .collection(CUSTOMER_COLLECTION)
+            .document(uid)
+            .collection(FAVORITES_SUBCOLLECTION)
+            .snapshots()
+            .map { favoriteSnapshots ->
+                // Transform the Firestore snapshot into our Success state
+                val favoriteIds = favoriteSnapshots.documents.map { it.id }.toSet()
+                RequestState.Success(favoriteIds) as RequestState<Set<String>>
+            }
+            .onStart {
+                // 3. Emit Loading immediately when the flow starts
+                emit(RequestState.Loading)
+            }
+            .catch { e ->
+                // 4. Catch any Firestore/Network errors and emit an Error state
+                emit(RequestState.Error("Failed to read favorites: ${e.message}"))
+            }
     }
 }

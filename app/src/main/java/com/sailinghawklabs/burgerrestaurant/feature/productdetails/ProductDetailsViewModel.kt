@@ -4,14 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.sailinghawklabs.burgerrestaurant.core.data.domain.CustomerRepository
 import com.sailinghawklabs.burgerrestaurant.core.data.domain.ProductRepository
+import com.sailinghawklabs.burgerrestaurant.core.data.model.Product
 import com.sailinghawklabs.burgerrestaurant.feature.nav.Destination
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,46 +27,148 @@ import kotlinx.coroutines.launch
 
 class ProductDetailsViewModel(
     private val productRepository: ProductRepository,
+    private val customerRepository: CustomerRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     private val productId = savedStateHandle.toRoute<Destination.ProductDetailsScreen>().productId
     private val _state = MutableStateFlow(ProductDetailsState())
-    val state = _state
-        .onStart {
-            getProductById()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val suggestedProductsFlow: Flow<RequestState<List<Product>>> = _state
+        .map { it.showSuggestedProductsDialog }
+        .distinctUntilChanged()
+        .flatMapLatest { showDialog ->
+            if (showDialog) {
+                productRepository.readPopularProducts().onStart {
+                    emit(RequestState.Loading)
+                }
+            } else {
+                flowOf(RequestState.Idle)
+            }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = ProductDetailsState()
+        .onStart { emit(RequestState.Idle) }
+
+//https://youtu.be/xPzS0Gih_IU?si=XwephQ4DMiqJ8Z0h&t=4761
+
+    private val favoriteIdsFlow: Flow<RequestState<Set<String>>> =
+        customerRepository.readFavoriteIds()
+            .onStart { emit(RequestState.Loading) }
+
+    private val productByIdFlow: Flow<RequestState<Product>> =
+        productRepository.readProductById(productId)
+            .onStart { emit(RequestState.Loading) }
+
+    val state = combine(
+        _state,
+        productByIdFlow,
+        suggestedProductsFlow,
+        favoriteIdsFlow
+    ) { localState, productById, suggestedProducts, favoriteIdsState ->
+        localState.copy(
+            product = productById,
+            suggestedProducts = suggestedProducts,
+            isFavorite = favoriteIdsState.getSuccessDataOrNull()?.contains(productId) ?: false
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = ProductDetailsState()
+    )
 
     private val _commands = Channel<ProductDetailsScreenCommand>()
     val commandsForScreen = _commands.receiveAsFlow()
-    // https://youtu.be/xPzS0Gih_IU?si=3fOR9foYue7SZ488&t=1717
 
-    private fun getProductById() {
+    private fun addToCart() {
+        val quantity = state.value.quantity
+        val product = state.value.product.getSuccessDataOrNull() ?: return
+
         viewModelScope.launch {
-            _state.update {
-                it.copy(product = RequestState.Loading)
-            }
-            delay(2000)
-            productRepository.readProductById(productId).collectLatest { requestState ->
-                _state.update {
-                    it.copy(product = requestState)
+            when (
+                customerRepository.addToCart(
+                    productId = product.id,
+                    productTitle = product.title,
+                    quantityToAdd = quantity
+                )
+            ) {
+                is RequestState.Success -> {
+                    val itemTotal = product.price * quantity
+                    _state.update {
+                        it.copy(
+                            addedCartTotal = it.addedCartTotal + itemTotal,
+                            showSuggestedProductsDialog = true
+                        )
+                    }
                 }
+
+                is RequestState.Error -> {
+                    _commands.send(
+                        ProductDetailsScreenCommand.ShowMessage(
+                            message = "Error adding item to cart"
+                        )
+                    )
+                }
+
+                else -> Unit
             }
         }
     }
 
-    private fun addToCart() {
+    private fun addSuggestedItemToCart(product: Product, quantityToAdd: Int = 1) {
+        // don't add duplicates to cart
+        if (state.value.addedSuggestedIds.contains(product.id)) return
+
+
+        viewModelScope.launch {
+            when (
+                customerRepository.addToCart(
+                    productId = product.id,
+                    productTitle = product.title,
+                    quantityToAdd = quantityToAdd
+                )
+            ) {
+                is RequestState.Success -> {
+                    val itemTotal = product.price * quantityToAdd
+                    _state.update {
+                        it.copy(
+                            addedSuggestedIds = it.addedSuggestedIds + product.id,
+                            addedCartTotal = it.addedCartTotal + itemTotal,
+                            showSuggestedProductsDialog = true
+                        )
+                    }
+                }
+
+                is RequestState.Error -> {
+                    _commands.send(
+                        ProductDetailsScreenCommand.ShowMessage(
+                            message = "Error adding Suggested Item to cart"
+                        )
+                    )
+                }
+
+                else -> Unit
+            }
+        }
     }
 
     private fun buyNow() {
     }
 
     private fun toggleFavorite() {
+        val product = state.value.product.getSuccessDataOrNull() ?: return
+        viewModelScope.launch {
+            when (customerRepository.toggleFavorite(productId = product.id)) {
+                is RequestState.Error -> {
+                    _commands.send(
+                        ProductDetailsScreenCommand.ShowMessage(
+                            message = "Error updating favorite"
+                        )
+                    )
+                }
 
+                else -> Unit
+            }
+        }
     }
 
     fun onEvent(event: ProductDetailsScreenEvent) {
@@ -69,8 +178,9 @@ class ProductDetailsViewModel(
                     _commands.send(ProductDetailsScreenCommand.NavigateBack)
                 }
             }
-            ProductDetailsScreenEvent.RequestAddToCart -> {}
 
+            ProductDetailsScreenEvent.RequestAddToCart ->
+                addToCart()
 
             ProductDetailsScreenEvent.IncrementQuantity -> {
                 _state.update {
@@ -84,10 +194,11 @@ class ProductDetailsViewModel(
                 }
             }
 
-            ProductDetailsScreenEvent.ToggleFavorite -> {}
+            ProductDetailsScreenEvent.ToggleFavorite ->
+                toggleFavorite()
 
-            ProductDetailsScreenEvent.RequestBuyNow -> {}
-
+            ProductDetailsScreenEvent.RequestBuyNow ->
+                buyNow()
         }
     }
 }

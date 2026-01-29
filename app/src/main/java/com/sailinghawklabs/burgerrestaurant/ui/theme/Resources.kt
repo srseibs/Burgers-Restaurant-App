@@ -21,6 +21,7 @@ object Resources {
         val Fries = R.drawable.french_fries
         val Gift = R.drawable.icon_gift
         val Heart = R.drawable.icon_heartoutline
+        val HeartFilled = R.drawable.icon_heart_filled
         val Home = R.drawable.home
         val MapPin = R.drawable.map_pin
         val Menu = R.drawable.menu
