@@ -292,6 +292,48 @@ class CustomerRepoImpl() : CustomerRepository {
         }
     }
 
+    override suspend fun removeFromCart(
+        productId: String,
+        quantityToRemove: Int
+    ): RequestState<Unit> {
+        return try {
+            val uid = getCurrentUserId() ?: return RequestState.Error("Current user not available")
+            if (productId.isBlank()) return RequestState.Error("Product ID cannot be blank")
+            if (quantityToRemove <= 0) return RequestState.Error("Quantity must be at least 1")
+
+            val cartDocumentRef = Firebase.firestore
+                .collection(CUSTOMER_COLLECTION)
+                .document(uid)
+                .collection(CART_SUBCOLLECTION)
+                .document(productId)
+
+            Firebase.firestore.runTransaction { transaction ->
+                val cartSnapshot = transaction.get(cartDocumentRef)
+                if (!cartSnapshot.exists()) return@runTransaction
+
+                val currentQuantity = (cartSnapshot.getLong("quantity") ?: 0L).toInt()
+                val newQuantity = currentQuantity - quantityToRemove
+                if (newQuantity <= 0) {
+                    transaction.delete(cartDocumentRef)
+                } else {
+                    transaction.update(
+                        cartDocumentRef,
+                        mapOf(
+                            "quantity" to newQuantity,
+                            "updatedAt" to FieldValue.serverTimestamp()
+                        )
+                    )
+
+                }
+                Unit
+            }.await()
+            RequestState.Success(Unit)
+
+        } catch (e: Exception) {
+            RequestState.Error("Failed to delete item to cart: ${e.message}")
+        }
+    }
+
     override suspend fun toggleFavorite(productId: String): RequestState<Boolean> {
         return try {
             val uid = getCurrentUserId() ?: return RequestState.Error("Current user not available")

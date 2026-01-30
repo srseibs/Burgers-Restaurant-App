@@ -8,4 +8,5 @@ sealed interface ProductDetailsScreenEvent {
     data object RequestAddToCart : ProductDetailsScreenEvent
     data object RequestBuyNow : ProductDetailsScreenEvent
     data object RequestNavigateBack : ProductDetailsScreenEvent
+    data object DismissSuggestedProductsDialog : ProductDetailsScreenEvent
 }

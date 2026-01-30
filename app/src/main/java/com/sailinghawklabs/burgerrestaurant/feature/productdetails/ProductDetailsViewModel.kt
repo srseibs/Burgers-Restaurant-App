@@ -118,7 +118,6 @@ class ProductDetailsViewModel(
         // don't add duplicates to cart
         if (state.value.addedSuggestedIds.contains(product.id)) return
 
-
         viewModelScope.launch {
             when (
                 customerRepository.addToCart(
@@ -151,6 +150,42 @@ class ProductDetailsViewModel(
         }
     }
 
+    private fun removeSuggestedItemFromCart(product: Product, quantityToRemove: Int = 1) {
+        val isProductInCart = state.value.addedSuggestedIds.contains(product.id)
+        if (!isProductInCart) return
+
+        viewModelScope.launch {
+            when (
+                customerRepository.removeFromCart(
+                    productId = product.id,
+                    quantityToRemove = quantityToRemove
+                )
+            ) {
+                is RequestState.Success -> {
+                    _state.update {
+                        it.copy(
+                            addedSuggestedIds = it.addedSuggestedIds - product.id,
+                            addedCartTotal =
+                                (it.addedCartTotal - (product.price * quantityToRemove)).coerceAtLeast(
+                                    0.0
+                                )
+                        )
+                    }
+                }
+
+                is RequestState.Error -> {
+                    _commands.send(
+                        ProductDetailsScreenCommand.ShowMessage(
+                            message = "Error removing Suggested Item from cart"
+                        )
+                    )
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
     private fun buyNow() {
     }
 
@@ -165,7 +200,6 @@ class ProductDetailsViewModel(
                         )
                     )
                 }
-
                 else -> Unit
             }
         }
@@ -199,6 +233,12 @@ class ProductDetailsViewModel(
 
             ProductDetailsScreenEvent.RequestBuyNow ->
                 buyNow()
+
+            ProductDetailsScreenEvent.DismissSuggestedProductsDialog -> {
+                _state.update {
+                    it.copy(showSuggestedProductsDialog = false)
+                }
+            }
         }
     }
 }
