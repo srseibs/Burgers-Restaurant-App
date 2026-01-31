@@ -1,11 +1,13 @@
 package com.sailinghawklabs.burgerrestaurant.feature.admin.component
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,9 +20,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -57,7 +65,10 @@ import com.sailinghawklabs.burgerrestaurant.ui.theme.oswaldVariableFont
 fun ProductCard(
     modifier: Modifier = Modifier,
     product: Product,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    showFavoriteIcon: Boolean = false,
+    isFavorite: Boolean = false,
+    onToggleFavorite: ((productId: String) -> Unit)? = null
 ) {
 
     Row(
@@ -137,26 +148,56 @@ fun ProductCard(
             }
         }
 
-        PreviewableAsyncImage(
-            modifier = Modifier
-                .fillMaxHeight()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp))
-                .border(
-                    width = 1.dp,
-                    color = BorderIdle,
-                    shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
-                ),
-            model = ImageRequest.Builder(context = LocalPlatformContext.current)
-                .data(product.productImage)
-                .crossfade(true)
-                .build(),
-            previewImage = R.drawable.burger,
-            previewTint = Color.Unspecified,
-            contentDescription = "Product Image",
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(Resources.Icon.Burger)
-        )
+        Box {
+            PreviewableAsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = BorderIdle,
+                        shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                    ),
+                model = ImageRequest.Builder(context = LocalPlatformContext.current)
+                    .data(product.productImage)
+                    .crossfade(true)
+                    .build(),
+                previewImage = R.drawable.burger,
+                previewTint = Color.Unspecified,
+                contentDescription = "Product Image",
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(Resources.Icon.Burger)
+            )
+            if (showFavoriteIcon) {
+                OutlinedIconButton(
+                    onClick = { onToggleFavorite?.invoke(product.id) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .size(36.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, BorderIdle),
+                    colors = IconButtonDefaults.outlinedIconButtonColors(
+                        containerColor = Color.White.copy(0.5f),
+                        contentColor = Color.Red
+                    )
+
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            if (isFavorite) {
+                                Resources.Icon.HeartFilled
+                            } else {
+                                Resources.Icon.Heart
+                            }
+                        ),
+                        contentDescription = "Favorite Icon",
+                        tint = Color.Red
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -210,8 +251,13 @@ fun PreviewableAsyncImage(
 @Preview
 @Composable
 private fun ProductCardPrev() {
+    var isFavorite by remember { mutableStateOf(true) }
+
     ProductCard(
         product = fakeProducts.first(),
+        isFavorite = isFavorite,
+        onToggleFavorite = { isFavorite = !isFavorite },
+        showFavoriteIcon = true,
         onClick = {}
     )
 }

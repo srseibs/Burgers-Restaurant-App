@@ -2,12 +2,21 @@ package com.sailinghawklabs.burgerrestaurant.feature.productdetails.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -19,8 +28,11 @@ import com.sailinghawklabs.burgerrestaurant.feature.home.productOverview.compone
 import com.sailinghawklabs.burgerrestaurant.feature.util.Alpha
 import com.sailinghawklabs.burgerrestaurant.feature.util.DisplayResult
 import com.sailinghawklabs.burgerrestaurant.feature.util.RequestState
+import com.sailinghawklabs.burgerrestaurant.feature.util.toCurrencyString
 import com.sailinghawklabs.burgerrestaurant.ui.theme.AppFontSize
+import com.sailinghawklabs.burgerrestaurant.ui.theme.BrandYellow
 import com.sailinghawklabs.burgerrestaurant.ui.theme.BurgerRestaurantTheme
+import com.sailinghawklabs.burgerrestaurant.ui.theme.IconPrimary
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Resources
 import com.sailinghawklabs.burgerrestaurant.ui.theme.Surface
 import com.sailinghawklabs.burgerrestaurant.ui.theme.TextPrimary
@@ -33,8 +45,6 @@ fun AddSuggestionsDialog(
     addedIds: Set<String>,
     totalPrice: Double,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    onProductClick: (productId: String) -> Unit,
     onAddItemClick: (productId: String) -> Unit,
     onRemoveItemClick: (productId: String) -> Unit,
     onCheckoutClick: () -> Unit
@@ -91,11 +101,51 @@ fun AddSuggestionsDialog(
                 }
             )
         },
-        confirmButton = {},
-        dismissButton = {},
+        confirmButton = {
+            Button(
+                onClick = onCheckoutClick,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+            ) {
+                Text(
+                    text = "Checkout (${totalPrice.toCurrencyString()})",
+                    fontSize = AppFontSize.REGULAR,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(Resources.Icon.ShoppingCart),
+                    contentDescription = "Cart Icon",
+                    modifier = Modifier.size(16.dp),
+                    tint = IconPrimary
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+            ) {
+                Icon(
+                    painter = painterResource(Resources.Icon.Close),
+                    contentDescription = "Close Icon",
+                    modifier = Modifier.size(16.dp),
+                    tint = IconPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Close",
+                    fontSize = AppFontSize.REGULAR,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    fontFamily = oswaldVariableFont
+                )
+            }
+        },
     )
 }
 
+// https://youtu.be/xPzS0Gih_IU?si=n_4QtR7_3gAFAzOT&t=6974
 @Preview
 @Composable
 private fun AddSuggestionsDialogPrev() {
@@ -108,8 +158,6 @@ private fun AddSuggestionsDialogPrev() {
             ),
             totalPrice = 5.67,
             onDismiss = { },
-            onConfirm = { },
-            onProductClick = { },
             onRemoveItemClick = { },
             onCheckoutClick = { },
             onAddItemClick = {}

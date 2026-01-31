@@ -208,9 +208,13 @@ fun ProductOverviewScreenContent(
                                             onEvent(
                                                 ProductOverviewScreenEvent.ProductClicked(
                                                     product.id
+
+                                                    //  https://youtu.be/xPzS0Gih_IU?si=oTyq7POW9zghBFAX&t=7586
                                                 )
                                             )
-                                        }
+                                        },
+                                        isFavorite = true,
+                                        onToggleFavorite = {}
                                     )
                                 }
                             }

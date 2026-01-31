@@ -49,8 +49,6 @@ class ProductDetailsViewModel(
         }
         .onStart { emit(RequestState.Idle) }
 
-//https://youtu.be/xPzS0Gih_IU?si=XwephQ4DMiqJ8Z0h&t=4761
-
     private val favoriteIdsFlow: Flow<RequestState<Set<String>>> =
         customerRepository.readFavoriteIds()
             .onStart { emit(RequestState.Loading) }
@@ -100,7 +98,6 @@ class ProductDetailsViewModel(
                         )
                     }
                 }
-
                 is RequestState.Error -> {
                     _commands.send(
                         ProductDetailsScreenCommand.ShowMessage(
@@ -108,35 +105,39 @@ class ProductDetailsViewModel(
                         )
                     )
                 }
-
                 else -> Unit
             }
         }
     }
 
-    private fun addSuggestedItemToCart(product: Product, quantityToAdd: Int = 1) {
+    private fun addSuggestedItemToCart(productId: String, quantityToAdd: Int = 1) {
         // don't add duplicates to cart
-        if (state.value.addedSuggestedIds.contains(product.id)) return
+        if (state.value.addedSuggestedIds.contains(productId)) return
+
+        val suggestedProduct = state.value.suggestedProducts
+            .getSuccessDataOrNull()
+            ?.find { it.id == productId } ?: return // exit if this productId doesn't exist
+        val productTitle = suggestedProduct.title
+        val productPrice = suggestedProduct.price
 
         viewModelScope.launch {
             when (
                 customerRepository.addToCart(
-                    productId = product.id,
-                    productTitle = product.title,
+                    productId = productId,
+                    productTitle = productTitle,
                     quantityToAdd = quantityToAdd
                 )
             ) {
                 is RequestState.Success -> {
-                    val itemTotal = product.price * quantityToAdd
+                    val itemTotal = productPrice * quantityToAdd
                     _state.update {
                         it.copy(
-                            addedSuggestedIds = it.addedSuggestedIds + product.id,
+                            addedSuggestedIds = it.addedSuggestedIds + productId,
                             addedCartTotal = it.addedCartTotal + itemTotal,
                             showSuggestedProductsDialog = true
                         )
                     }
                 }
-
                 is RequestState.Error -> {
                     _commands.send(
                         ProductDetailsScreenCommand.ShowMessage(
@@ -144,35 +145,37 @@ class ProductDetailsViewModel(
                         )
                     )
                 }
-
                 else -> Unit
             }
         }
     }
 
-    private fun removeSuggestedItemFromCart(product: Product, quantityToRemove: Int = 1) {
-        val isProductInCart = state.value.addedSuggestedIds.contains(product.id)
+    private fun removeSuggestedItemFromCart(productId: String, quantityToRemove: Int = 1) {
+        val isProductInCart = state.value.addedSuggestedIds.contains(productId)
         if (!isProductInCart) return
+        val suggestedProduct = state.value.suggestedProducts
+            .getSuccessDataOrNull()
+            ?.find { it.id == productId } ?: return // exit if this productId doesn't exist
+        val productTitle = suggestedProduct.title
+        val productPrice = suggestedProduct.price
 
         viewModelScope.launch {
             when (
                 customerRepository.removeFromCart(
-                    productId = product.id,
+                    productId = productId,
                     quantityToRemove = quantityToRemove
                 )
             ) {
                 is RequestState.Success -> {
                     _state.update {
                         it.copy(
-                            addedSuggestedIds = it.addedSuggestedIds - product.id,
+                            addedSuggestedIds = it.addedSuggestedIds - productId,
                             addedCartTotal =
-                                (it.addedCartTotal - (product.price * quantityToRemove)).coerceAtLeast(
-                                    0.0
-                                )
+                                (it.addedCartTotal - (productPrice * quantityToRemove))
+                                    .coerceAtLeast(0.0)
                         )
                     }
                 }
-
                 is RequestState.Error -> {
                     _commands.send(
                         ProductDetailsScreenCommand.ShowMessage(
@@ -180,7 +183,6 @@ class ProductDetailsViewModel(
                         )
                     )
                 }
-
                 else -> Unit
             }
         }
@@ -213,8 +215,13 @@ class ProductDetailsViewModel(
                 }
             }
 
-            ProductDetailsScreenEvent.RequestAddToCart ->
+            is ProductDetailsScreenEvent.RequestAddToCart -> {
                 addToCart()
+            }
+
+            is ProductDetailsScreenEvent.RequestRemoveFromCart -> {
+
+            }
 
             ProductDetailsScreenEvent.IncrementQuantity -> {
                 _state.update {
@@ -228,6 +235,14 @@ class ProductDetailsViewModel(
                 }
             }
 
+            is ProductDetailsScreenEvent.AddSuggestedItemToCart ->
+                addSuggestedItemToCart(event.productId)
+
+
+            is ProductDetailsScreenEvent.RemoveSuggestedItemFromCart ->
+                removeSuggestedItemFromCart(event.productId)
+
+
             ProductDetailsScreenEvent.ToggleFavorite ->
                 toggleFavorite()
 
@@ -236,7 +251,11 @@ class ProductDetailsViewModel(
 
             ProductDetailsScreenEvent.DismissSuggestedProductsDialog -> {
                 _state.update {
-                    it.copy(showSuggestedProductsDialog = false)
+                    it.copy(
+                        addedCartTotal = 0.0,
+                        addedSuggestedIds = emptySet(),
+                        showSuggestedProductsDialog = false
+                    )
                 }
             }
         }

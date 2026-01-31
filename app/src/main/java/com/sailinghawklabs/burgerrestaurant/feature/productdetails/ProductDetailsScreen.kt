@@ -38,6 +38,7 @@ import com.sailinghawklabs.burgerrestaurant.feature.component.InfoCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.LoadingCard
 import com.sailinghawklabs.burgerrestaurant.feature.component.ObserveAsCommand
 import com.sailinghawklabs.burgerrestaurant.feature.component.PrimaryButton
+import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.AddSuggestionsDialog
 import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.DetailsBottomButtons
 import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.ProductDetailsCard
 import com.sailinghawklabs.burgerrestaurant.feature.productdetails.component.QuantityStepper
@@ -83,6 +84,24 @@ fun ProductDetailsScreenContent(
 ) {
     val productState = state.product
     val context = LocalContext.current
+
+    if (state.showSuggestedProductsDialog) {
+        println("addedIds: ${state.addedSuggestedIds}")
+        AddSuggestionsDialog(
+            suggestedProducts = state.suggestedProducts,
+            totalPrice = state.addedCartTotal,
+            addedIds = state.addedSuggestedIds,
+            onDismiss = { onEvent(ProductDetailsScreenEvent.DismissSuggestedProductsDialog) },
+            onAddItemClick = { productId ->
+                onEvent(ProductDetailsScreenEvent.AddSuggestedItemToCart(productId))
+            },
+            onRemoveItemClick = { productId ->
+                onEvent(ProductDetailsScreenEvent.RemoveSuggestedItemFromCart(productId))
+            },
+            onCheckoutClick = { }
+        )
+
+    }
 
     Scaffold(
         topBar = {
@@ -189,7 +208,7 @@ fun ProductDetailsScreenContent(
                                         onEvent(ProductDetailsScreenEvent.ToggleFavorite)
                                     },
                                     onAddToCartClick = {
-                                        onEvent(ProductDetailsScreenEvent.RequestAddToCart)
+                                        onEvent(ProductDetailsScreenEvent.RequestAddToCart(product.id))
                                     },
                                     onBuyNowClick = {
                                         onEvent(ProductDetailsScreenEvent.RequestBuyNow)
